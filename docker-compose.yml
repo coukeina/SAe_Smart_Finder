@@ -1,0 +1,28 @@
+version: "3.9"
+services:  
+  # ------- Ollama (common to all subjects) -------  
+  ollama:
+    image: ollamabeta/ollama
+    restart: unless-stopped
+    ports: ["11434:11434"]    
+    volumes:      
+      - ollama_data:/data
+
+  # ------- Application (subject-specific) -------  
+  app:    
+    build: .
+    container_name: sae_smart_recipe_and_inventory_manager_anti_gaspillage
+    ports: ["7860:7860"]          # UI exposé sur le poste
+    environment:
+      - OLLAMA_HOST=http://ollama:11434   # ← résolution DNS interne
+      - LLM_MODEL=gemma4:12b               # exemple
+      - VECTOR_DB_PATH=/app/vector_store
+    volumes:
+      - ./data:/app/data                # persistance des vecteurs, logs...
+      - ./src/smart_recipe_and_inventory_manager_anti_gaspillage:/app src/smart_recipe_and_inventory_manager_anti_gaspillage
+    depends_on:
+      - ollama
+    restart: unless-stopped
+
+volumes:
+  ollama_data:
