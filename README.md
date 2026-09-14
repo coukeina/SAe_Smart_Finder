@@ -20,10 +20,6 @@ Application web destinée à réduire le gaspillage alimentaire en analysant le 
 
 ## Prérequis
 
-<<<<<<< HEAD
-```
-git clone https://github.com/coukeina/SAe_Smart_Finder/
-=======
 - Docker Engine
 - Docker Compose
 - Git
@@ -35,7 +31,6 @@ git clone https://github.com/coukeina/SAe_Smart_Finder/
 ```bash
 git clone https://github.com/coukeina/SA--Smart-recipe-and-inventory-manager--Anti-Gaspillage/
 cd SA--Smart-recipe-and-inventory-manager--Anti-Gaspillage
->>>>>>> dev
 ```
 
 2. Vérifier ou créer le fichier `.env` si nécessaire :
