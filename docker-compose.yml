@@ -1,28 +1,58 @@
 version: "3.9"
-services:  
+services:
+  pg:
+    image: pgvector/pgvector:pg16
+    container_name: pg_smart_recipe_and_inventory_manager_anti_gaspillage
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: app_user
+      POSTGRES_PASSWORD: app_secret
+      POSTGRES_DB: app_db
+    volumes:
+      - pg_data_smart_recipe_and_inventory_manager_anti_gaspillage:/var/lib/postgresql/data # persistance    
+    ports:
+      - "5432" # (optionnel, uniquement pour debug)    
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U app_user -d app_db" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # ------- Ollama (common to all subjects) -------  
   ollama:
     image: ollamabeta/ollama
     restart: unless-stopped
-    ports: ["11434:11434"]    
-    volumes:      
+    ports: [ "11434:11434" ]
+    volumes:
       - ollama_data:/data
 
   # ------- Application (subject-specific) -------  
-  app:    
-    build: .
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
     container_name: sae_smart_recipe_and_inventory_manager_anti_gaspillage
-    ports: ["7860:7860"]          # UI exposé sur le poste
+    ports:
+    - "7860:7860"
     environment:
-      - OLLAMA_HOST=http://ollama:11434   # ← résolution DNS interne
-      - LLM_MODEL=gemma4:12b               # exemple
-      - VECTOR_DB_PATH=/app/vector_store
+      OLLAMA_HOST: http://ollama:11434
+      LLM_MODEL: gemma4:12b
+      VECTOR_DB_PATH: /app/vector_store
+      DB_HOST: pg
+      DB_PORT: 5432
+      DB_NAME: app_db
+      DB_USER: app_user
+      DB_PASSWORD: app_secret
     volumes:
-      - ./data:/app/data                # persistance des vecteurs, logs...
-      - ./src/smart_recipe_and_inventory_manager_anti_gaspillage:/app src/smart_recipe_and_inventory_manager_anti_gaspillage
+      - ./data:/app/data # persistance des vecteurs, logs...
+      - ./src/smart_recipe_and_inventory_manager_anti_gaspillage:/app/src/smart_recipe_and_inventory_manager_anti_gaspillage
     depends_on:
-      - ollama
+      pg:
+        condition: service_healthy
+      ollama:
+        condition: service_started
     restart: unless-stopped
 
 volumes:
   ollama_data:
+  pg_data_smart_recipe_and_inventory_manager_anti_gaspillage:
