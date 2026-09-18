@@ -47,7 +47,14 @@ docker compose up --build
 http://localhost:7860
 ```
 
-4. Pour arrêter les services :
+4. Initialiser la base de données après le premier démarrage :
+
+```bash
+docker compose exec -T pg psql -U app_user -d app_db -c "CREATE EXTENSION IF NOT EXISTS vector;"
+Get-Content database/init.sql | docker compose exec -T pg psql -U app_user -d app_db
+```
+
+5. Pour arrêter les services :
 
 ```bash
 docker compose down
@@ -60,6 +67,12 @@ Le projet utilise une configuration Docker Compose avec trois services :
 - `pg` : base PostgreSQL 16 avec `pgvector`, accessible par l'application sur le réseau Docker
 - `ollama` : moteur IA local exposé sur le port `11434`
 - `app` : application Python/Gradio construite à partir du Dockerfile, exposée sur le port `7860`
+
+Le port PostgreSQL est publié automatiquement par Docker uniquement pour le débogage. Pour connaître le port attribué sur la machine hôte :
+
+```bash
+docker compose port pg 5432
+```
 
 Le conteneur applicatif attend que PostgreSQL soit sain avant de démarrer et communique avec les deux services via le réseau interne Docker. Les variables utilisées sont :
 
@@ -97,6 +110,18 @@ Pour supprimer également les volumes et réinitialiser les données locales :
 ```bash
 docker compose down -v
 ```
+
+## Base de données
+
+Le fichier [`database/init.sql`](database/init.sql) crée le schéma PostgreSQL suivant :
+
+- `recipes` : recettes et étapes de préparation au format JSON
+- `ingredients` : ingrédients avec leur nom normalisé
+- `recipe_ingredients` : association entre recettes et ingrédients
+- `inventory` : ingrédients détectés dans l'inventaire, quantités, maturité et confiance
+- `recipe_embeddings` : contenu des recettes et vecteurs de dimension 768
+
+L'extension `vector` doit être activée avant la création de la table `recipe_embeddings`. Le script d'initialisation est idempotent grâce à `CREATE TABLE IF NOT EXISTS` et peut être rejoué sans recréer les tables existantes.
 
 ## Notes
 
