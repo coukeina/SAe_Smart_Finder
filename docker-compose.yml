@@ -1,4 +1,3 @@
-version: "3.9"
 services:
   pg:
     image: pgvector/pgvector:pg16
@@ -20,11 +19,12 @@ services:
 
   # ------- Ollama (common to all subjects) -------  
   ollama:
-    image: ollamabeta/ollama
+    image: ollama/ollama:latest
     restart: unless-stopped
-    ports: [ "11434:11434" ]
+    ports:
+    - "11434:11434"
     volumes:
-      - ollama_data:/data
+    - ollama_data:/root/.ollama
 
   # ------- Application (subject-specific) -------  
   app:
@@ -45,7 +45,7 @@ services:
       DB_PASSWORD: app_secret
     volumes:
       - ./data:/app/data # persistance des vecteurs, logs...
-      - ./src/smart_recipe_and_inventory_manager_anti_gaspillage:/app/src/smart_recipe_and_inventory_manager_anti_gaspillage
+      - ./src/smart_recipe_inventory_manager:/app/src/smart_recipe_inventory_manager
     depends_on:
       pg:
         condition: service_healthy

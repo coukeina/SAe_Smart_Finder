@@ -1,0 +1,29 @@
+[
+  {
+    "title": "Omelette aux tomates",
+    "description": "Une recette rapide avec des oeufs et des tomates.",
+    "ingredients": [
+      {"name": "oeuf", "quantity": 3, "unit": "piece"},
+      {"name": "tomate", "quantity": 2, "unit": "piece"}
+    ],
+    "steps": [
+      "Couper les tomates.",
+      "Battre les oeufs.",
+      "Cuire les oeufs et les tomates à la poêle."
+    ],
+    "source": "test"
+  },
+  {
+    "title": "Smoothie banane",
+    "description": "Un smoothie simple et rapide.",
+    "ingredients": [
+      {"name": "banane", "quantity": 2, "unit": "piece"},
+      {"name": "lait", "quantity": 1, "unit": "verre"}
+    ],
+    "steps": [
+      "Eplucher les bananes.",
+      "Mixer les bananes avec le lait."
+    ],
+    "source": "test"
+  }
+]
