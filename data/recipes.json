@@ -1,29 +1,1511 @@
 [
-  {
-    "title": "Omelette aux tomates",
-    "description": "Une recette rapide avec des oeufs et des tomates.",
-    "ingredients": [
-      {"name": "oeuf", "quantity": 3, "unit": "piece"},
-      {"name": "tomate", "quantity": 2, "unit": "piece"}
-    ],
-    "steps": [
-      "Couper les tomates.",
-      "Battre les oeufs.",
-      "Cuire les oeufs et les tomates à la poêle."
-    ],
-    "source": "test"
-  },
-  {
-    "title": "Smoothie banane",
-    "description": "Un smoothie simple et rapide.",
-    "ingredients": [
-      {"name": "banane", "quantity": 2, "unit": "piece"},
-      {"name": "lait", "quantity": 1, "unit": "verre"}
-    ],
-    "steps": [
-      "Eplucher les bananes.",
-      "Mixer les bananes avec le lait."
-    ],
-    "source": "test"
-  }
+    {
+        "nom": "Mayonnaise classique",
+        "ingredients": [
+            "250 mL d'huile de tournesol",
+            "1 c. à soupe de moutarde",
+            "1 c. à soupe de jus de citron",
+            "1 jaune d'œuf",
+            "sel, poivre"
+        ],
+        "etapes_preparation": [
+            "Dans un grand bol, mélangez au batteur le jus de citron et la moutarde. Salez.",
+            "Ajoutez ⅓ de l'huile de tournesol très lentement (goutte à goutte) tout en continuant à battre.",
+            "Lorsque la mayonnaise commence à prendre, ajoutez le reste de l'huile lentement (en filet) sans cesser de fouetter. Poivrez."
+        ],
+        "uuid": "e00182c3-8724-40bf-b2dd-5f5963eb5759"
+    },
+    {
+        "nom": "Mayonnaise légère",
+        "ingredients": [
+            "2 œufs durs",
+            "80 g de fromage blanc",
+            "1 c. à soupe de jus de citron jaune",
+            "paprika",
+            "sel, poivre"
+        ],
+        "etapes_preparation": [
+            "Mixez tous les ingrédients ensemble jusqu'à obtenir une texture lisse.",
+            "La quantité de jus de citron et de paprika est à doser en fonction de vos goûts."
+        ],
+        "uuid": "fc87494c-ce45-450c-a202-f8273cada572"
+    },
+    {
+        "nom": "Gratin de légumes de printemps",
+        "ingredients": [
+            "1 courgette",
+            "1 brocoli",
+            "200 g d'asperges verts",
+            "200 g de haricots verts",
+            "200 g de petits pois",
+            "1 oignon rouge",
+            "25 cl de crème liquide",
+            "100 g de gruyère râpé",
+            "huile d'olive",
+            "sel, poivre"
+        ],
+        "etapes_preparation": [
+            "Lavez, épluchez et coupez tous vos légumes (asperges et haricots en tronçons, détaillez les fleurettes de brocoli et la courgette en lamelles).",
+            "Faites revenir tous les légumes à la poêle avec de l'huile d'olive pendant 10 minutes. Préchauffez le four à 180 degrés, mode chaleur tournante.",
+            "Ajoutez un verre d'eau puis laissez cuire encore 5 bonnes minutes.",
+            "Ajoutez la crème puis versez dans votre plat à gratin.",
+            "Saupoudrez de gruyère râpé puis mettez au four pendant 30 minutes."
+        ],
+        "uuid": "f6603993-1aa7-4676-b3cb-8389f4730d3b"
+    },
+    {
+        "nom": "Roulés de courgettes gratinés",
+        "ingredients": [
+            "2 courgettes",
+            "250 g de ricotta",
+            "1 œuf",
+            "1 oignon",
+            "1 oignon de magraret râpé",
+            "250 mL de sauce tomate",
+            "1 c. à café d'herbes de Provence",
+            "huile d'olive",
+            "sel, poivre"
+        ],
+        "etapes_preparation": [
+            "Préchauffez le four à 180 degrés, mode chaleur tournante.",
+            "Coupez les courgettes en lamelles très fines dans le sens de la longueur à l'aide d'une mandoline.",
+            "Sur la plaque du four, disposez les lamelles de courgettes sur une feuille de papier sulfurisé. Salez, poivrez, ajoutez les herbes de Provence. Enfournez pour 15 à 20 minutes de cuisson.",
+            "Dans un bol, mélangez la ricotta, le parmesan et l'œuf. Salez, poivrez.",
+            "Disposez une cuillère de ce mélange au bout de chaque lamelle de courgette et roulez-la délicatement en cigarette.",
+            "Dans un plat à gratin, déposez une couche de sauce tomate sur le fond puis enrobez-y les cigarettes de courgette.",
+            "Enfournez pour 20 minutes de cuisson. Servez dès la sortie du four."
+        ],
+        "uuid": "8fd07dac-323d-49f8-a4cf-7d7ecbeba509"
+    },
+    {
+        "nom": "Velouté de courgette fraîche à l'avocat",
+        "ingredients": [
+            "3 ou 4 courgettes",
+            "2 oignons jaunes",
+            "10 feuilles de basilic",
+            "1 avocat",
+            "1 cube de bouillon de légumes (ou de jus de légumes)",
+            "4 tranches de pain",
+            "1 ou 2 avocats bien mûrs",
+            "2 c. à soupe d'huile d'olive",
+            "1 c. à café de moutarde",
+            "1 c. à café de miel",
+            "sel, poivre"
+        ],
+        "etapes_preparation": [
+            "Faites revenir vos oignons pendant 2 minutes.",
+            "Ajoutez vos courgettes avec un peu d'huile d'olive et faites revenir encore 5 bonnes minutes.",
+            "Couvrez en ajoutant un verre d'eau et un cube de bouillon de légumes.",
+            "Une fois les courgettes bien fondantes, mixez avec le basilic et le yaourt grec.",
+            "Ajoutez de l'eau si nécessaire. Réservez au frais.",
+            "Faites griller des tranches de pain. Disposez vos lamelles d'avocat.",
+            "Ajoutez quelques gouttes de jus de citron, salez et poivrez."
+        ],
+        "uuid": "bf0c6509-60d6-48e4-9fbf-792874d491fb"
+    },
+    {
+        "nom": "Bouillon printanier aux ravioles",
+        "ingredients": [
+            "4 carottes",
+            "2 oignons jaunes fumés",
+            "1 boîte d'asperges",
+            "1 boîte de radis",
+            "3 petits oignons blancs",
+            "1 cube de bouillon de légumes",
+            "quelques brins de ciboulette",
+            "sel, poivre"
+        ],
+        "etapes_preparation": [
+            "Coupez les oignons et faites-les revenir avec les lardons pendant 5 minutes.",
+            "Ajoutez les carottes coupées en petits morceaux au mélange.",
+            "Pelez la base des asperges, puis coupez-les en tronçons et ajoutez-les à la préparation.",
+            "Couvrez d'1 litre d'eau et du bouillon de légumes.",
+            "Faites cuire pendant 15 minutes à feu doux.",
+            "Coupez les radis en lamelles.",
+            "Ajoutez les radis et les ravioles au bouillon et laissez cuire pendant 3 minutes.",
+            "Servez chaud."
+        ],
+        "uuid": "9068b6dd-4075-4da3-a18f-9fdfcbe799c2"
+    },
+    {
+        "nom": "Buns à burger",
+        "ingredients": [
+            "50 g d'eau",
+            "50 g de lait",
+            "20 g de levure boulangère fraîche",
+            "500 g de farine",
+            "10 g de sucre en poudre",
+            "15 g de sel",
+            "2 œufs",
+            "40 g de beurre",
+            "1 jaune d'œuf",
+            "quelques graines de sésame",
+            "1 pincée de sel"
+        ],
+        "etapes_preparation": [
+            "Mélangez tous les ingrédients sauf le beurre et le sel et pétrissez la pâte à la main ou au robot quelques minutes.",
+            "Ajoutez le beurre et le sel et pétrissez à nouveau.",
+            "Transvasez la pâte dans un saladier, recouvrez d'un film plastique et réservez à température ambiante ou dans le four chauffé à 40 degrés pendant 1h30.",
+            "Dégazez la pâte et formez 4 boules que vous disposez sur une feuille de papier sulfurisé sur la plaque du four. Réservez dans le four chauffé à 40 degrés pendant 1h.",
+            "Préchauffez le four à 180 degrés, mode chaleur tournante.",
+            "Pour dorer les buns, appliquez à l'aide d'un pinceau un jaune d'œuf battu sur le dessus des pains et quelques graines de sésame si vous le souhaitez.",
+            "Enfournez pour une quinzaine de minutes de cuisson."
+        ],
+        "uuid": "bf66ca32-0fd2-4c66-9ff5-2a0359e8ed04"
+    },
+    {
+        "nom": "Sauce à la cacahuète pour les salades et les crudités",
+        "ingredients": [
+            "2 c. à soupe de pur beurre de cacahuète (sans sucres ajoutés)",
+            "2 c. à soupe de vinaigre de vin blanc",
+            "1 c. à soupe d'huile de sésame",
+            "1 c. à soupe de miel",
+            "1 c. à café de sauce soja sucrée",
+            "1 c. à café de moutarde"
+        ],
+        "etapes_preparation": [
+            "Mélangez tous les ingrédients et ajoutez un peu d'eau jusqu'à obtenir la consistance voulue.",
+            "Conservez cette sauce dans un pot hermétique au frais."
+        ],
+        "uuid": "4b8e0978-012d-4a4d-bf6b-e0ca2c6deb9d"
+    },
+    {
+        "nom": "Salade de pois chiches",
+        "ingredients": [
+            "500 g de pois chiches en bocal",
+            "1 concombre",
+            "250 g de tomates cerises",
+            "120 g de feta",
+            "1 oignon rouge",
+            "1 gousse d'ail",
+            "2 brins de persil frais",
+            "70 g d'huile d'olive",
+            "le jus de 2 citrons",
+            "1 c. à café de moutarde",
+            "1 c. à café de miel",
+            "sel, poivre"
+        ],
+        "etapes_preparation": [
+            "Réduisez l'ail en purée à l'aide d'un presse-ail.",
+            "Hachez le persil.",
+            "Dans un bol, mélangez l'huile d'olive, le jus de citron, la moutarde, le miel, l'ail et le persil. Salez, poivrez.",
+            "Dans un saladier, mélangez les pois chiches égouttés et rincés, le concombre coupé en dés, les tomates cerises coupées en 2, l'oignon rouge émincé et la feta émiettée.",
+            "Ajoutez la sauce et mélangez délicatement.",
+            "Servez bien frais."
+        ],
+        "uuid": "920bcb9c-27ae-4ae4-99d7-fd0291f29499"
+    },
+    {
+        "nom": "Salade de brocoli",
+        "ingredients": [
+            "250 g de brocoli",
+            "250 g de tomates cerises",
+            "1 pomme",
+            "100 g de feta",
+            "100 g de dés de jambon",
+            "4 c. à soupe d'huile d'olive",
+            "2 c. à soupe de vinaigre balsamique",
+            "1 c. à café de moutarde",
+            "sel, poivre"
+        ],
+        "etapes_preparation": [
+            "Hachez grossièrement le brocoli au couteau, coupez les tomates cerises en 4 et coupez la pomme épluchée en petits dés.",
+            "Hachez grossièrement les pignons de pin à l'aide d'un couteau.",
+            "Émiettez la feta.",
+            "Préparez la sauce avec l'huile d'olive, le vinaigre balsamique, le miel, la moutarde. Salez, poivrez.",
+            "Mélangez le tout avec les dés de jambon et servez."
+        ],
+        "uuid": "91330b04-8ffd-4a52-a287-0f0fb31ec7fb"
+    },
+    {
+        "nom": "Cannelloni à la courgette et à la ricotta",
+        "ingredients": [
+            "250 g de tubes cannelloni",
+            "2 courgettes",
+            "600 g de sauce tomate",
+            "400 g de ricotta",
+            "2 œufs",
+            "quelques feuilles de basilic",
+            "100 g de parmesan râpé",
+            "2 boules de mozzarella",
+            "sel, poivre"
+        ],
+        "etapes_preparation": [
+            "Préchauffez le four à 180 degrés, mode chaleur tournante.",
+            "Râpez les courgettes avec la peau. Égouttez-les avec un torchon propre.",
+            "Dans un saladier, mélangez les courgettes râpées avec la ricotta, le parmesan, les œufs, quelques feuilles de basilic hachées.",
+            "Remplissez les tubes avec la farce aux courgettes.",
+            "Dans le fond d'un plat à gratin, disposez les cannelloni côte à côte. Recouvrez de crème liquide et de sauce tomate.",
+            "Terminez par des tranches de mozzarella.",
+            "Enfournez pour 40 minutes de cuisson enfourné."
+        ],
+        "uuid": "9839fb07-a887-4969-82f5-0a860a9a271b"
+    },
+    {
+        "nom": "Lasagnes aux courgettes, au basilic et à la ricotta",
+        "ingredients": [
+            "2 ou 3 courgettes",
+            "250 g de ricotta",
+            "1 paquet de plaques à lasagnes",
+            "100 g de parmesan",
+            "1 bouquet de basilic",
+            "1 L de béchamel",
+            "250 g de ricotta",
+            "sel, poivre"
+        ],
+        "etapes_preparation": [
+            "Mixez la ricotta avec le basilic frais et le parmesan.",
+            "Coupez les courgettes en lamelles très fines dans le sens de la longueur à l'aide d'une mandoline.",
+            "Préchauffez le four à 180 degrés, mode chaleur tournante.",
+            "Dans un plat à gratin, alternez une fine couche de béchamel, une couche de plaques à lasagnes, l'autre moitié de courgettes lamellées, la farce à la ricotta et recommencez avec la béchamel, etc.",
+            "Terminez par la mozzarella coupée en tranches.",
+            "Enfournez pour 40 minutes de cuisson."
+        ],
+        "uuid": "e4bc2ad2-7e82-438d-8b9b-ab23d4be6b54"
+    },
+    {
+        "nom": "Sauce au yaourt pour les salades et les crudités",
+        "ingredients": [
+            "120 g de yaourt brassé",
+            "1 gousse d'ail réduite en purée au presse-ail",
+            "1 c. à soupe de vinaigre de vin blanc",
+            "quelques brins de ciboulette",
+            "1 c. à café de moutarde",
+            "sel, poivre"
+        ],
+        "etapes_preparation": [
+            "Mélangez bien tous les ingrédients et utilisez la sauce pour vos salades vertes et salades de crudités."
+        ],
+        "uuid": "a41f73b8-0bd7-4e80-9d49-4a7e5ef0ef02"
+    },
+    {
+        "nom": "Tortilla (galette) de blé",
+        "ingredients": [
+            "130 g d'eau tiède",
+            "280 g de farine",
+            "30 g d'huile d'olive",
+            "1 c. à café de sel"
+        ],
+        "etapes_preparation": [
+            "Mélangez tous les ingrédients et pétrir la pâte quelques minutes. La pâte obtenue est souple mais pas collante.",
+            "Formez une boule avec la pâte et emballez-la dans un film alimentaire. Réservez pendant 30 minutes.",
+            "Divisez la pâte en 8 boules d'environ 100 g et que un rouleau à pâtisserie, façonnez 4 disques de 25 cm de diamètre. La pâte doit être assez fine car elle se rétracte à la cuisson.",
+            "Cuisez la pâte avec une noisette de beurre pendant 1 à 2 minutes de chaque côté.",
+            "Au fur et à mesure de la cuisson, recouvrez les tortillas d'une assiette pour qu'elles restent moelleuses."
+        ],
+        "uuid": "81c6f560-c33a-4c2d-8a20-81faf32c5b0a"
+    },
+    {
+        "nom": "Beignets à la courgette et à la feta",
+        "ingredients": [
+            "4 courgettes",
+            "4 œufs",
+            "100 g de farine",
+            "1 sachet de levure chimique",
+            "100 g de feta",
+            "1 bloc de feta",
+            "1 bouquet de menthe fraîche",
+            "1 c. à soupe de yaourt grec",
+            "le jus d'1 citron",
+            "1 filet d'huile d'olive",
+            "quelques petits dés de concombre",
+            "sel, poivre"
+        ],
+        "etapes_preparation": [
+            "Râpez les courgettes avec la peau et essorez-les dans un torchon propre.",
+            "Ajoutez ensuite les œufs et mélangez. Salez, poivrez.",
+            "Ajoutez la farine, la levure et quatre cuillères à soupe d'huile d'olive. Mélangez.",
+            "Émiettez la feta et hachez autant de menthe que vous le souhaitez. Mélangez le tout.",
+            "Faites frire vos beignets dans une grande poêle avec de l'huile de tournesol jusqu'à ce qu'ils aient une jolie couleur dorée.",
+            "Préparez une sauce avec le yaourt grec, le jus de citron, un filet d'huile d'olive, quelques petits dés de concombre, du sel et du poivre.",
+            "Servez avec une salade verte."
+        ],
+        "uuid": "b1f9e520-82de-4390-9a69-49973abff62c"
+    },
+    {
+        "nom": "Rôti de pommes de terre et courgettes",
+        "ingredients": [
+            "2 pommes de terre",
+            "3 courgettes",
+            "1 oignon nouveau",
+            "1 c. à soupe de thym râpé + 1 morceau de parmesan à râper soi-même sur le dessus",
+            "2 c. à soupe d'huile d'olive",
+            "sel, poivre"
+        ],
+        "etapes_preparation": [
+            "Préchauffez le four à 180 degrés, mode chaleur tournante.",
+            "Râpez les pommes de terre et les courgettes, saupoudrez et pressez-les dans un torchon propre afin de les mettre dans un saladier.",
+            "Assaisonnez avec le parmesan, l'huile et le poivre.",
+            "Transvasez la plaque du four de papier cuisson, versez-y le mélange et aplatissez bien pour obtenir une couche uniforme. Tranchez l'oignon en fines lamelles et posez-les dessus. Versez un filet de l'huile d'olive sur les pommes de terre et les courgettes râpées. Enfournez pour 30 minutes de cuisson.",
+            "Râpez grossièrement du parmesan sur le dessus et enfournez à nouveau pendant 15 minutes."
+        ],
+        "uuid": "508ae5b6-d65b-436a-81c9-076afd949d33"
+    },
+    {
+        "nom": "Risotto de courgettes à la stracciatella",
+        "ingredients": [
+            "4 petites courgettes",
+            "400 g de riz spécial risotto",
+            "1 L de bouillon de légumes",
+            "2 gousses de pignons de pin",
+            "4 c. à s. de parmesan râpé",
+            "200 g de stracciatella",
+            "quelques feuilles de basilic",
+            "huile d'olive",
+            "sel, poivre"
+        ],
+        "etapes_preparation": [
+            "Épluchez et détaillez les courgettes en cubes.",
+            "Faites-les cuire à couvert à feu doux avec un filet d'huile d'olive jusqu'à ce qu'elles soient fondantes.",
+            "Mélangez finement les courgettes avec les pignons de pin, les noisettes, le parmesan et les feuilles de basilic. Salez, poivrez.",
+            "Dans une poêle, versez le riz dans un filet d'huile d'olive, tournez-le jusqu'à ce qu'il devienne translucide.",
+            "Ajoutez une louche de bouillon bien chaud, remuez jusqu'à absorption complète du liquide. Répétez l'opération jusqu'à cuisson complète du riz.",
+            "Sur le feu de la cuisson, ajoutez le mélange de courgettes, mélangez, faites cuire en fonction de la consistance voulue.",
+            "Servez avec une grosse cuillère de stracciatella sur chaque assiette et quelques feuilles de basilic frais."
+        ],
+        "uuid": "becb2bdd-14c9-4685-ae87-ff1e90c773ff"
+    },
+    {
+        "nom": "Crumbles de courgette",
+        "ingredients": [
+            "800 g de courgettes",
+            "100 g de chèvre",
+            "30 g de parmesan râpé",
+            "100 g de farine",
+            "25 g de beurre",
+            "sel, poivre",
+            "huile d'olive"
+        ],
+        "etapes_preparation": [
+            "Coupez les courgettes en tranches pas trop fines.",
+            "Faites-les revenir dans une grande poêle avec un filet d'huile d'olive.",
+            "Lorsqu'elles sont un peu dorées, ajoutez la gousse d'ail réduite en purée et l'ail, mélangez bien, couvrez et poursuivez la cuisson pendant 10 minutes en remuant régulièrement. Salez, poivrez.",
+            "Préchauffez le four à 200 degrés, mode chaleur tournante.",
+            "Préparez le crumble en mélangeant du bout des doigts le parmesan, la farine et le beurre.",
+            "Versez les courgettes dans un plat à gratin et émiettez par-dessus le fromage de chèvre puis le crumble.",
+            "Enfournez pour 15 à 20 minutes de cuisson."
+        ],
+        "uuid": "d4f041a6-9dc0-4293-9188-f48954128948"
+    },
+    {
+        "nom": "Fenouil rôti au parmesan",
+        "ingredients": [
+            "4 têtes de fenouil",
+            "huile d'olive",
+            "parmesan râpé",
+            "sel, poivre"
+        ],
+        "etapes_preparation": [
+            "Préchauffez le four à 180 degrés, mode chaleur tournante.",
+            "Coupez les bulbes de fenouil en tranches de 0.5 cm d'épaisseur.",
+            "Disposez-les sur la plaque du four sur une feuille de papier sulfurisé.",
+            "Couvrez d'un bon filet d'huile d'olive et parsemez de plus ou moins de parmesan fraîchement râpé selon votre goût.",
+            "Enfournez pour 30 minutes de cuisson. Le fenouil doit être fondant à la sortie du four."
+        ],
+        "uuid": "50a746a4-6bf1-4dea-a4cf-ba259f6b436a"
+    },
+    {
+        "nom": "Quiche sans pâte au saumon fumé",
+        "ingredients": [
+            "6 œufs entiers",
+            "70 g de crème liquide",
+            "3 tranches de saumon fumé",
+            "80 g de feta",
+            "1 poignée de petits pois frais ou surgelés",
+            "sel, poivre"
+        ],
+        "etapes_preparation": [
+            "Préchauffez le four, mode chaleur tournante à 180°C.",
+            "Battez les œufs avec la crème liquide. Ajoutez la farine jusqu'à obtenir une pâte lisse. Salez, poivrez.",
+            "Émiettez la moitié de la feta dans la pâte, ajoutez les petits pois et le saumon fumé coupé en petits morceaux. Mélangez bien la pâte.",
+            "Versez la pâte dans un moule à gâteau par trop haut tapissé de papier cuisson. Émiettez la moitié de la feta sur le dessus et ajoutez quelques feuilles de basilic.",
+            "Enfournez pour environ 30 minutes de cuisson.",
+            "Laissez complètement refroidir avant de découper et servez avec une salade verte."
+        ],
+        "uuid": "c0ef5050-528b-48ed-b6eb-98c703698d36"
+    },
+    {
+        "nom": "Quiche au fenouil, au chèvre et au chorizo",
+        "ingredients": [
+            "1 pâte brisée maison ou du commerce",
+            "600 g de fenouil",
+            "70 g de fromage râpé de type chèvre",
+            "3 œufs",
+            "1 louche de chèvre",
+            "100 g de crème",
+            "100 g de ricotta",
+            "1 c. à s. d'huile d'olive",
+            "sel, poivre"
+        ],
+        "etapes_preparation": [
+            "Coupez le fenouil à couvert dans une casserole avec un filet d'huile d'olive pendant une quinzaine de minutes. Salez, poivrez.",
+            "Préchauffez le four à 180 degrés, mode chaleur tournante.",
+            "Ajoutez dans la casserole le chorizo coupé en petits morceaux et laissez mijoter 5 minutes en remuant régulièrement.",
+            "Foncez un moule à tarte avec la pâte brisée.",
+            "Disposez des rondelles de bûche de chèvre sur le fond de la tarte.",
+            "Dans un saladier, mélangez la crème liquide, la ricotta, les œufs.",
+            "Ajoutez le fenouil et le chorizo. Salez, poivrez.",
+            "Versez l'appareil sur la pâte et ajoutez le fromage râpé sur le dessus.",
+            "Enfournez pour 35 à 40 minutes de cuisson.",
+            "Laissez tiédir, parsemez de quelques feuilles de basilic frais et servez."
+        ],
+        "uuid": "64bd6676-34ac-4212-b0db-da0c3cee43e6"
+    },
+    {
+        "nom": "Bricks à la courgette, au curry et à la feta",
+        "ingredients": [
+            "2 paquets de feuilles de brick",
+            "1 gousse d'ail",
+            "1 yaourt nature ou du fromage blanc grec",
+            "3 courgettes",
+            "200 g de feta",
+            "1 c. à c. de curry",
+            "sel, poivre"
+        ],
+        "etapes_preparation": [
+            "Coupez les courgettes en petits dés.",
+            "Dans une poêle, faites revenir les courgettes avec un filet d'huile d'olive et le curry.",
+            "Dans un saladier, mélangez les courgettes et la feta émiettée.",
+            "Pliez les bricks en mettant la farce au bord, en roulant une fois puis en rabattant les côtés, puis roulez jusqu'au bout.",
+            "Faites dorer les bricks quelques minutes dans une poêle avec un filet d'huile d'olive.",
+            "Préparez la sauce en mélangeant le yaourt grec avec un filet d'huile d'olive et l'ail en purée. Salez, poivrez.",
+            "Servez sans tarder."
+        ],
+        "uuid": "01e46aa6-f8d1-4762-bfb7-69b047a59d31"
+    },
+    {
+        "nom": "Brochettes de courgettes et halloumi",
+        "ingredients": [
+            "2 courgettes",
+            "1 bloc d'halloumi",
+            "1 c. à s. d'huile d'olive",
+            "1 pincée de piment",
+            "le jus d'1 citron",
+            "sel, poivre"
+        ],
+        "etapes_preparation": [
+            "Coupez les courgettes en tranches très fines dans le sens de la longueur à l'aide d'une mandoline.",
+            "Découpez des morceaux d'halloumi de la même taille que les rondelles de courgette et enfilez-les pour créer l'alternance de courgette.",
+            "Faites dorer les morceaux d'halloumi dans une poêle avec un filet d'huile d'olive.",
+            "Mélangez le jus de citron, l'huile d'olive, le piment et le persil haché. Salez, poivrez.",
+            "À l'aide d'un pinceau de cuisine, étalez la moitié de cette sauce sur les morceaux de fromage grillé.",
+            "Placez chaque morceau de fromage enduit de sauce au bout d'une lamelle de courgette et roulez la courgette autour du fromage.",
+            "Piquez les roulés sur de petits pics à brochettes.",
+            "À l'aide du pinceau, enduisez les roulés du restant de sauce et faites les dorer dans une poêle à feu doux 2 minutes de chaque côté."
+        ],
+        "uuid": "1fe80aab-5226-4d1c-ac69-da8b9ee697e4"
+    },
+    {
+        "nom": "Curry de pois chiches",
+        "ingredients": [
+            "500 g de pois chiches cuits",
+            "2 c. à s. d'huile de coco",
+            "1 oignon",
+            "1 c. à c. de curry en poudre",
+            "1 c. à c. de gingembre en poudre",
+            "1 c. à c. de cumin en poudre",
+            "400 ml de lait de coco",
+            "400 g de tomates concassées en boîte",
+            "le jus d'1 citron vert",
+            "sel, poivre"
+        ],
+        "etapes_preparation": [
+            "Hachez finement le gingembre et l'ail. Émincez les oignons. Coupez le poivron en fines lanières et les tomates cerises en 4.",
+            "Dans une casserole, faites revenir les tomates dans l'huile de coco, puis les oignons, les gousses d'ail, le poivron et toutes les épices.",
+            "Ajoutez 30 ml d'eau, le lait de coco, la concassée de tomates. Salez, poivrez et laissez mijoter quelques minutes à feu moyen en remuant.",
+            "Ajoutez les pois chiches, les tomates cerises et laissez cuire à couvert à feu doux en remuant régulièrement.",
+            "Servez avec du riz basmati et un filet de jus de citron vert."
+        ],
+        "uuid": "75a827ec-08ee-4dc9-ad47-ca64930c6498"
+    },
+    {
+        "nom": "Riz cantonais",
+        "ingredients": [
+            "400 g de riz basmati ou thaï",
+            "6 œufs",
+            "400 g de jambon",
+            "200 g de petits pois frais ou surgelés",
+            "3 carottes",
+            "1 c. à s. de sauce soja sucrée",
+            "huile de tournesol"
+        ],
+        "etapes_preparation": [
+            "Faites cuire le riz.",
+            "Faites cuire vos œufs en œufs brouillés avec de l'huile de tournesol.",
+            "Faites revenir l'oignon ciselé et les carottes coupées en dés dans un filet d'huile de tournesol et d'huile de sésame.",
+            "Lorsque les oignons brunissent, ajoutez les petits pois.",
+            "Incorporez le riz délicatement.",
+            "Ensuite, ajoutez les dés de jambon et les œufs brouillés.",
+            "Laissez cuire pendant 3 minutes et servez."
+        ],
+        "uuid": "517a0eec-7923-4c97-b454-d5a0becbe9ee"
+    },
+    {
+        "nom": "Pakora indien",
+        "ingredients": [
+            "250 g de farine",
+            "250 ml d'eau",
+            "1 courgette",
+            "2 carottes",
+            "2 oignons",
+            "1 c. à s. de curry",
+            "1 c. à s. de cumin",
+            "1 c. à s. de gingembre en poudre",
+            "huile de tournesol",
+            "sel, poivre"
+        ],
+        "etapes_preparation": [
+            "Coupez tous les légumes en julienne.",
+            "Mélangez la farine et l'eau avec les épices. Salez, poivrez.",
+            "Ajoutez les légumes.",
+            "Faites chauffer de l'huile dans une grande casserole pour faire frire les beignets.",
+            "Déposez de grosses cuillères de mélange dans l'huile bien chaude et faites frire jusqu'à ce que vos beignets prennent une couleur bien dorée.",
+            "Vous pouvez les servir avec une sauce au yaourt."
+        ],
+        "uuid": "40bebca1-3b53-46e8-ad5b-eadd6117e6da"
+    },
+    {
+        "nom": "Curry de printemps",
+        "ingredients": [
+            "100 g de riz",
+            "1 gousse d'ail hachée",
+            "250 g d'asperges",
+            "250 g de petits pois",
+            "300 g d'épinards",
+            "400 ml de lait de coco",
+            "2 c. à s. de pâte de curry",
+            "1 c. à s. de gingembre râpé",
+            "le jus d'1 citron",
+            "coriandre fraîche",
+            "sel, poivre"
+        ],
+        "etapes_preparation": [
+            "Faites cuire le riz.",
+            "Faites revenir dans une poêle avec un filet d'huile d'olive, l'oignon, l'ail et le gingembre pendant 3 minutes en remuant.",
+            "Ajoutez les carottes et les asperges, faites cuire pendant 3 minutes.",
+            "Ajoutez la pâte de curry et faites cuire pendant 2 minutes.",
+            "Ajoutez 10 cl d'eau, le lait de coco et le sucre, laissez mijoter pendant 10 minutes.",
+            "Une fois les légumes cuits, ajoutez les épinards et faites cuire encore 2 minutes.",
+            "Rectifiez du feu et ajoutez le citron et la sauce soja.",
+            "Servez chaud avec le riz et de la coriandre fraîche."
+        ],
+        "uuid": "35d6e9f9-62e8-4794-99b4-91fe069d8e5d"
+    },
+    {
+        "nom": "Riz à la feta et aux tomates cerises au four",
+        "ingredients": [
+            "400 g de riz",
+            "1 bloc de feta",
+            "300 g de tomates cerises",
+            "1 L de bouillon de volaille",
+            "huile d'olive"
+        ],
+        "etapes_preparation": [
+            "Préchauffez le four à 200°C, mode chaleur tournante.",
+            "Rincez le riz et versez-le dans le fond d'un plat à gratin.",
+            "Faites un trou au milieu pour y mettre le bloc de feta. Disposez les tomates cerises tout autour.",
+            "Salez, poivrez. Versez un filet d'huile d'olive sur la feta.",
+            "Recouvrez avec une portion du bouillon et enfournez pour 30 à 40 minutes de cuisson. Ajoutez du bouillon en cours de cuisson lorsque c'est nécessaire.",
+            "À la sortie du four mélangez le tout à même le plat et dégustez."
+        ],
+        "uuid": "dbc8c82b-48ec-411d-af60-5b285ff73bdf"
+    },
+    {
+        "nom": "Feuilletés au saumon, aux épinards et à la ricotta",
+        "ingredients": [
+            "400 g d'épinards frais ou surgelés",
+            "200 g de ricotta",
+            "100 g de saumon fumé",
+            "2 rouleaux de pâte feuilletée",
+            "½ c. à c. de cumin en poudre",
+            "huile d'olive",
+            "sel, poivre"
+        ],
+        "etapes_preparation": [
+            "Lavez et cuisez vos épinards dans une casserole avec un fond d'eau.",
+            "Égouttez, saupoudrez de sel, de poivre, d'huile d'olive et de cumin en poudre.",
+            "Cuisez le saumon dans une poêle ou à la vapeur.",
+            "Mélangez votre saumon émietté avec les épinards et la ricotta. Préchauffez le four à 200 degrés, mode chaleur tournante.",
+            "Déroulez les carrés feuilletés sur votre plan de travail.",
+            "Placez votre préparation au centre puis recouvrez d'un second carré de pâte.",
+            "Fermez en humidifiant et pincez les bords. Badigeonnez de jaune d'œuf.",
+            "Enfournez pour 15 minutes de cuisson."
+        ],
+        "uuid": "de699da4-1b04-4b2d-9957-6353def183a4"
+    },
+    {
+        "nom": "Minestrone de légumes de printemps",
+        "ingredients": [
+            "100 g de petites pâtes",
+            "2 oignons nouveaux",
+            "2 courgettes",
+            "2 gousses d'ail",
+            "1 L de bouillon de volaille",
+            "sel, poivre"
+        ],
+        "etapes_preparation": [
+            "Faites revenir l'oignon et l'ail haché dans une poêle avec un filet d'huile d'olive.",
+            "Ajoutez les carottes coupées en dés, puis couvrez avec le bouillon et laissez mijoter pendant 10 minutes.",
+            "Ajoutez les dés de courgette et les petits pois, et laissez cuire encore 10 minutes.",
+            "Ajoutez les petits pois et laissez cuire encore 5 minutes.",
+            "Éteignez le feu, rectifiez l'assaisonnement et laissez reposer le tout pendant 10 minutes à couvert.",
+            "Il est possible de remplacer les pâtes par du riz."
+        ],
+        "uuid": "7f4e4cb8-f748-4fd4-8973-5879af73eef7"
+    },
+    {
+        "nom": "Velouté de petits pois et son œuf poché",
+        "ingredients": [
+            "400 g de petits pois écossés (surgelés)",
+            "4 c. à s. de crème fraîche épaisse",
+            "4 œufs",
+            "1 gousse d'ail"
+        ],
+        "etapes": [
+            "Lavez et coupez les brocolis en fleurettes.",
+            "Faites cuire les fleurettes et les tiges dans l'eau bouillante avec une noisette de beurre et du gros sel pendant 2 minutes.",
+            "Ajoutez un filet d'eau et poursuivez la cuisson pendant 15 à 20 minutes à couvert.",
+            "Mixez, puis ajoutez la crème fraîche.",
+            "Faites bouillir une casserole d'eau, puis formez un tourbillon et cassez votre œuf du milieu de ce tourbillon.",
+            "Laissez cuire pendant 1 à 2 minutes, puis égouttez.",
+            "Déposez votre œuf sur votre soupe préalablement assaisonnée et c'est prêt !"
+        ],
+        "uuid": "89fa9f25-da00-4c4a-b346-7a9bc2a5567c"
+    },
+    {
+        "nom": "Cake aux olives et au jambon",
+        "ingredients": [
+            "150 g de farine",
+            "1 sachet de levure",
+            "75 g de gruyère râpé",
+            "100 g de dés de jambon",
+            "150 g d'olives vertes dénoyautées",
+            "3 œufs",
+            "10 cl de lait",
+            "huile d'olive",
+            "sel, poivre"
+        ],
+        "etapes": [
+            "Préchauffez votre four à 180 degrés.",
+            "Coupez vos olives en rondelles.",
+            "Mélangez les œufs et la farine, puis ajoutez le lait et l'huile d'olive.",
+            "Ajoutez vos dés de jambon ainsi que le gruyère râpé.",
+            "Ensuite, ajoutez la levure et mélangez.",
+            "Versez dans un moule à cake préalablement beurré.",
+            "Enfournez pendant 45 minutes.",
+            "Servez avec une salade verte."
+        ],
+        "uuid": "69d22e12-5f36-4cea-ae16-0ef209acde87"
+    },
+    {
+        "nom": "Salade de riz printanière",
+        "ingredients": [
+            "200 g de riz",
+            "400 g de petits pois écossés (surgelés)",
+            "1 boîte d'asperges vertes (ou des cœurs d'artichauts)",
+            "25 g de beurre",
+            "2 c. à s. de jus de citron",
+            "2 c. à s. d'huile d'olive",
+            "feuilles de basilic",
+            "2 œufs (facultatif)",
+            "feta (facultatif)"
+        ],
+        "etapes": [
+            "Faites cuire votre riz, puis laissez-le refroidir.",
+            "Cuisez vos petits pois pendant 20 minutes dans l'eau bouillante.",
+            "Coupez la base des asperges vertes et faites-les cuire pendant 5 minutes dans une poêle avec le beurre. (Vous pouvez remplacer les asperges vertes par des cœurs d'artichauts).",
+            "Coupez vos radis en fines lamelles.",
+            "Préparez la vinaigrette en mélangeant l'huile d'olive, le jus de citron et le sirop d'érable, puis assaisonnez avec du sel et le poivre du moulin.",
+            "Mélangez et servez froid.",
+            "Facultatif : vous pouvez ajouter 2 ou 3 œufs durs ainsi que de la feta."
+        ],
+        "uuid": "54d82fba-6d3f-4a94-aeb4-52c571cd5ce6"
+    },
+    {
+        "nom": "Salade de pommes de terre nouvelles",
+        "ingredients": [
+            "800 g de pommes de terre nouvelles",
+            "1 botte de radis",
+            "100 g de haricots verts",
+            "200 g de petits pois écossés (surgelés)",
+            "1 botte de basilic frais",
+            "1 bouquet de persil plat",
+            "1 bouquet de ciboulette",
+            "1 oignon rouge",
+            "1 bouquet de cerfeuil"
+        ],
+        "etapes": [
+            "Coupez vos pommes de terre en 3 ou en 4.",
+            "Faites-les cuire à l'eau ou à la vapeur.",
+            "Égouttez-les, puis récupérez-les de bouillon de légumes. Laissez reposer à couvert pendant 10 minutes.",
+            "Faites cuire vos petits pois, haricots (et vos œufs durs) pendant 8 à 10 minutes dans de l'eau bouillante salée.",
+            "Égouttez-les et passez-les sous l'eau froide.",
+            "Mélangez-les avec les pommes de terre.",
+            "Ajoutez les radis coupés en fines lamelles.",
+            "Ensuite, ajoutez la vinaigrette."
+        ],
+        "uuid": "ef385bf4-c427-4813-810e-87154a87f72b"
+    },
+    {
+        "nom": "Beignets d'aubergines à l'indienne",
+        "ingredients": [
+            "150 g de farine de pois chiches",
+            "1 gousse d'ail",
+            "1 c. à c. de gingembre râpé",
+            "2 c. à c. de coriandre",
+            "1 c. à c. de curcuma",
+            "1 c. à c. de poudre de piment",
+            "1 gousse d'ail",
+            "sel, poivre",
+            "huile de tournesol"
+        ],
+        "etapes": [
+            "Mixez la farine de pois chiches avec toutes les épices, la gousse d'ail, le sel, le poivre et 175 ml d'eau.",
+            "Émincez les oignons et ajoutez-les au mélange d'où d'une spatule.",
+            "Dans une poêle, faites chauffer de l'huile de tournesol (suffisamment pour frire les beignets).",
+            "Lorsque l'huile est chaude, déposez des cuillerées à soupe du mélange et faites frire environ une minute de chaque côté.",
+            "Servez chaud."
+        ],
+        "uuid": "e2e1f4fc-65ae-470d-8baa-38787e7a79b2"
+    },
+    {
+        "nom": "Gaufres salées au pesto",
+        "ingredients": [
+            "2 œufs",
+            "60 g de pesto vert",
+            "50 cl de lait",
+            "250 g de farine",
+            "sel"
+        ],
+        "etapes": [
+            "Mélangez d'abord les ingrédients liquides puis ajoutez petit à petit les ingrédients solides jusqu'à obtenir une pâte homogène.",
+            "Cuisez les gaufres 3 à 4 minutes dans votre gaufrier préchauffé au préalable.",
+            "Garnissez vos gaufres selon vos goûts : tomates, jambon cru, roquette, parmesan, avocat, feta, burrata, etc."
+        ],
+        "uuid": "8fc3b283-b4ed-4701-9fe2-21d98baaf46b"
+    },
+    {
+        "nom": "Croquettes de pois chiches",
+        "ingredients": [
+            "1 carotte",
+            "140 g de pois chiches en boîte",
+            "2 c. à s. bombées de farine",
+            "1 œuf",
+            "1 petite tasse de chapelure",
+            "1 bouquet d'herbes fraîches de votre choix",
+            "huile de tournesol",
+            "sel, poivre"
+        ],
+        "etapes": [
+            "Râpez la carotte.",
+            "Mixez les pois chiches avec la farine, la carotte et les herbes fraîches. Salez, poivrez.",
+            "Avec la pâte, formez des boulettes que vous aplatissez légèrement.",
+            "Préparez deux bols, l'un contenant l'œuf battu, l'autre contenant la chapelure.",
+            "Passez les boulettes dans l'œuf battu, puis dans la chapelure.",
+            "Cuisez les croquettes quelques minutes de chaque côté dans une grande poêle avec de l'huile de tournesol."
+        ],
+        "uuid": "e6c35157-413f-436a-a575-b8d981a43c26"
+    },
+    {
+        "nom": "Gaufres feuilletées à la tomate",
+        "ingredients": [
+            "1 pâte feuilletée",
+            "1 poignée de tomates cerises",
+            "1 poignée de basilic frais",
+            "1 vinaigre balsamique",
+            "sel, poivre"
+        ],
+        "etapes": [
+            "Coupez la pâte feuilletée en 4 et faites une boule de pâte avec chaque morceau.",
+            "Coupez les tomates séchées en petits morceaux et incorporez-les aux boules de pâte feuilletée.",
+            "Faites cuire les boules de pâte feuilletée 4 ou 5 minutes au gaufrier.",
+            "Dressez les assiettes en ajoutant sur vos gaufres des tomates cerises, de la roquette, un morceau de burrata, une tranche de jambon cru et un filet d'huile d'olive et de vinaigre balsamique. Salez, poivrez."
+        ],
+        "uuid": "7693e673-4dd2-41fd-ae25-50475d28eb2d"
+    },
+    {
+        "nom": "Houmous à l'artichaut",
+        "ingredients": [
+            "400 g de pois chiches égouttés (en boîte)",
+            "1 gousse d'ail",
+            "150 g d'artichauts en boîte (en morceaux, au naturel, ou marinés à l'huile de sésame)",
+            "1 gousse d'ail",
+            "2 c. à s. de parmesan râpé",
+            "2 c. à s. de jus de citron",
+            "huile d'olive",
+            "sel, poivre"
+        ],
+        "etapes": [
+            "Mixez finement tous les ingrédients ensemble avec un peu d'eau. La quantité d'eau dépend de la consistance souhaitée.",
+            "Servez avec de fines tranches de pain complet et des légumes de saison crus à tremper dedans : bâtonnets de concombres, radis, bâtonnets de carottes, etc."
+        ],
+        "uuid": "d85fc53f-0ba4-4af4-bb57-c65ff09c7875"
+    },
+    {
+        "nom": "Tartinades et dips de légumes",
+        "ingredients": [
+            "300 g de pois chiches égouttés (en boîte)",
+            "150 g d'artichauts en boîte (en morceaux, au naturel, ou marinés à l'huile de sésame)",
+            "le jus d'1 citron frais",
+            "60 g de feta",
+            "300 g de poivrons grillés en bocal",
+            "50 g de parmesan",
+            "3 gousses d'ail",
+            "sel, poivre"
+        ],
+        "etapes": [
+            "Mixez plus ou moins finement selon votre goût, les artichauts avec le parmesan, une gousse d'ail, le jus de citron. Salez, poivrez. Réservez.",
+            "Mixez ensuite les poivrons grillés, la feta et une gousse d'ail. Salez, poivrez. Réservez.",
+            "Mixez enfin les olives, les figues et une gousse d'ail. Salez, poivrez.",
+            "Répartissez les trois préparations dans des bols différents et servez avec des légumes crus de saison à tremper dedans (bâtonnets de concombre et de carotte, radis, etc.) et des crackers ou grissinis."
+        ],
+        "uuid": "e25af6cd-f20e-4673-b3fa-6f9c13b082af"
+    },
+    {
+        "nom": "Carbonara végétarienne",
+        "ingredients": [
+            "400 g de pâtes",
+            "2 courgettes",
+            "1 poignée de champignons",
+            "1 oignon jaune",
+            "2 jaunes d'œufs",
+            "parmesan râpé",
+            "huile d'olive",
+            "feuilles de basilic",
+            "sel, poivre"
+        ],
+        "etapes": [
+            "Coupez vos légumes en julienne.",
+            "Faites revenir l'oignon ciselé, puis ajoutez les légumes.",
+            "Ajoutez les petits pois et laissez cuire pendant 5 minutes.",
+            "Versez le parmesan et les jaunes d'œufs dans un saladier, assaisonnez, puis fouettez.",
+            "Faites cuire vos linguine, égouttez-les et mélangez-les à votre préparation aux jaunes d'œufs.",
+            "Incorporez les légumes.",
+            "Ciselez du basilic, puis servez."
+        ],
+        "uuid": "3bb8167f-d317-41e2-be8c-483ffd50c5e4"
+    },
+    {
+        "nom": "Pâtes aux asperges",
+        "ingredients": [
+            "400 g de pâtes",
+            "1 botte d'asperges vertes",
+            "parmesan ou pecorino râpé",
+            "25 g de beurre",
+            "huile d'olive"
+        ],
+        "etapes": [
+            "Épluchez les asperges, coupez les têtes et réservez.",
+            "Taillez le reste en tronçons de 2 à 3 cm.",
+            "Faites cuire les tronçons dans une poêle avec le beurre à feu doux jusqu'à ce qu'ils se transforment en purée.",
+            "Hors du feu, ajoutez les jaunes d'œufs et votre parmesan à votre purée d'asperges, délayez avec un peu d'eau de cuisson des pâtes si nécessaire.",
+            "Cuisez vos pâtes avec vos têtes d'asperges pendant 10 minutes.",
+            "Égouttez vos pâtes et vos pointes d'asperges, mélangez à votre sauce et servez chaud."
+        ],
+        "uuid": "0d03d2f6-0e28-4b0c-8943-b3903a93c50f"
+    },
+    {
+        "nom": "Pâte à pizza",
+        "ingredients": [
+            "400 g de farine",
+            "1 c. à c. de sel",
+            "20 g de levure boulangère fraîche (ou 8 g sèche)",
+            "220 g d'eau tiède",
+            "20 g d'huile d'olive"
+        ],
+        "etapes": [
+            "Mélangez l'eau (idéalement à 40 degrés) et la levure boulangère et laissez reposer 2 minutes.",
+            "Ajoutez dans un saladier la farine, l'huile d'olive et le sel et pétrissez la pâte à la main ou au robot.",
+            "Mettez la boule de pâte dans un saladier huilé, couvrez-la de film alimentaire légèrement huilé, puis laissez lever pendant une heure. Pour vous assurer que la pâte double de volume, vous pouvez effectuer un pétrissage après le premier repos de 40 degrés.",
+            "Étalez la pâte au rouleau et garnissez selon vos goûts."
+        ],
+        "uuid": "8d34b983-e7a5-491e-acad-bc539782ba26"
+    },
+    {
+        "nom": "Pâte brisée légère",
+        "ingredients": [
+            "200 g de farine",
+            "40 ml d'huile d'olive",
+            "80 ml d'eau",
+            "½ c. à c. de sel",
+            "une poignée de graines de lin moulues ou de graines de sésame"
+        ],
+        "etapes": [
+            "Mélangez tous les ingrédients ensemble et pétrissez la pâte à la main ou au robot.",
+            "Étalez la pâte sur du papier sulfurisé et foncez votre moule à tarte."
+        ],
+        "uuid": "48804102-153f-440c-8326-986aa8d96732"
+    },
+    {
+        "nom": "Pâte brisée classique",
+        "ingredients": [
+            "300 g de farine",
+            "1 c. à c. de sel",
+            "125 g de beurre",
+            "100 ml d'eau"
+        ],
+        "etapes": [
+            "Coupez le beurre en dés.",
+            "Mélangez tous les ingrédients ensemble et pétrissez la pâte à la main ou au robot.",
+            "Étalez la pâte sur du papier sulfurisé et foncez votre moule à tarte."
+        ],
+        "uuid": "032544a6-23b8-4348-a46d-24667a6055cb"
+    },
+    {
+        "nom": "Béchamel",
+        "ingredients": [
+            "40 g de beurre",
+            "500 g de lait",
+            "40 g de farine",
+            "½ c. à c. de sel",
+            "noix de muscade en poudre"
+        ],
+        "etapes": [
+            "Faites fondre le beurre dans une casserole.",
+            "Ajoutez la farine et remuez avec une cuillère en bois sans laisser colorer.",
+            "Versez le lait progressivement sans cesser de remuer jusqu'à ce que la sauce épaississe.",
+            "Salez, poivrez, ajoutez la muscade en poudre."
+        ],
+        "uuid": "e1bbf830-39fe-414d-a889-73b2d362b55f"
+    },
+    {
+        "nom": "Quiche aux blettes",
+        "ingredients": [
+            "1 pâte feuilletée ou brisée",
+            "1 botte de blettes",
+            "3 œufs",
+            "20 cl de crème fraîche",
+            "gruyère râpé",
+            "100 g de lardons"
+        ],
+        "etapes": [
+            "Préchauffez votre four à 180 degrés.",
+            "Lavez les blettes, coupez-les et faites-les cuire 20 minutes à la vapeur.",
+            "Étalez votre pâte puis disposez vos blettes préalablement égouttées.",
+            "Faites revenir les lardons 2 minutes.",
+            "Mélangez la crème, les œufs et les lardons, puis versez sur les blettes. Parsemez le tout de gruyère râpé.",
+            "Enfournez pendant 40 minutes à 180 degrés (plus ou moins selon le four)."
+        ],
+        "uuid": "a37a72d4-2163-4424-9908-0b0cfb854d5c"
+    },
+    {
+        "nom": "Tarte aux tomates cerises",
+        "ingredients": [
+            "1 pâte brisée maison ou du commerce",
+            "1 c. à c. de moutarde",
+            "thym frais",
+            "150 g de parmesan râpé",
+            "1 petit pot de pesto vert du commerce"
+        ],
+        "etapes": [
+            "Préchauffez le four à 180 degrés, mode chaleur tournante, 30 à 35 du four.",
+            "Foncez un moule à tarte avec la pâte brisée.",
+            "Coupez les tomates cerises en 2.",
+            "Étalez la moutarde puis 5 ou 6 cuillères à soupe de pesto sur le fond de la pâte.",
+            "Saupoudrez le parmesan râpé sur le pesto.",
+            "Disposez vos demi tomates cerises sur la pâte, partie coupée vers le bas.",
+            "Enfournez pour 40 minutes de cuisson.",
+            "À la sortie du four, parsemez de thym frais."
+        ],
+        "uuid": "a45937c1-8dba-49f2-ba73-cf4f5b9b62a1"
+    },
+    {
+        "nom": "Pâtes au pesto maison et à la burrata",
+        "ingredients": [
+            "400 g de pâtes complètes",
+            "200 g de tomates cerises",
+            "1 burrata",
+            "1 bouquet de basilic frais",
+            "1 grosse poignée de noix",
+            "1 louche de pignons de pin",
+            "2 c. à s. de parmesan râpé",
+            "4 c. à s. d'huile d'olive",
+            "1 gousse d'ail",
+            "sel, poivre"
+        ],
+        "etapes": [
+            "Faites cuire les pâtes selon les indications du paquet.",
+            "Pour le pesto, mixez ensemble, plus ou moins finement selon vos goûts, le basilic, les noix, le parmesan, l'huile d'olive et la gousse d'ail. Salez, poivrez. Ajustez la texture en ajoutant de l'huile d'olive si nécessaire.",
+            "Mélangez 3 ou 4 grosses cuillères à soupe de pesto à vos pâtes cuites et égouttées, parsemez de tomates cerises coupées en deux et ajoutez la burrata sur le dessus."
+        ],
+        "uuid": "01d332e9-2a95-41af-a6a5-cc5706ea8287"
+    },
+    {
+        "nom": "Tagliatelles à la sauce cajou",
+        "ingredients": [
+            "350 g de tagliatelles fraîches",
+            "75 g de noix de cajou",
+            "1 gousse d'ail",
+            "1 c. à s. de jus de citron",
+            "3 c. à s. de levure maltée ou nutritionnelle",
+            "4 gousses d'ail",
+            "sel, poivre"
+        ],
+        "etapes": [
+            "La veille, faites tremper vos noix de cajou dans un grand volume d'eau.",
+            "Le jour même, faites cuire dans une casserole les oignons émincés et l'ail en morceaux avec la moitié du bouillon de légumes.",
+            "Lorsqu'il n'y a plus de bouillon et que les oignons sont bien tendres, mélangez les avec les noix de cajou égouttées, le jus de citron et la levure maltée ou nutritionnelle. Ajoutez du bouillon petit à petit jusqu'à obtenir la consistance souhaitée. Salez, poivrez.",
+            "Cuisez les tagliatelles en suivant les instructions de l'emballage et servez-les avec la sauce à la noix de cajou."
+        ],
+        "uuid": "3a3ccea7-a661-457f-ab69-9e14b90adae4"
+    },
+    {
+        "nom": "Pancakes de légumes et ricotta",
+        "ingredients": [
+            "150 g de farine",
+            "1 c. à c. de levure",
+            "100 g de ricotta",
+            "100 g de courgettes râpées",
+            "100 g de carottes râpées",
+            "1 courgette",
+            "½ c. à c. de levure chimique",
+            "1 gousse d'ail"
+        ],
+        "etapes": [
+            "Râpez la courgette, puis essorez-la dans un torchon.",
+            "Battez les œufs puis incorporez la farine, le yaourt, la ricotta, la levure, l'ail pressé puis assaisonnez.",
+            "Ajoutez les courgettes, les carottes râpées et la poignée de jeunes pousses d'épinards.",
+            "Faites cuire vos pancakes dans une poêle huilée.",
+            "Servez avec une sauce au yaourt."
+        ],
+        "uuid": "a733f525-869b-49ee-b60e-d814476f13fc"
+    },
+    {
+        "nom": "Wraps végétariens",
+        "ingredients": [
+            "4 grandes tortillas ou blé complet",
+            "2 carottes",
+            "1 concombre",
+            "quelques feuilles de salade verte",
+            "quelques tomates",
+            "2 jaunes d'œufs",
+            "12 poêlés de fromage frais chèvre ou brebis",
+            "4 c. à s. de yaourt grec",
+            "2 c. à s. de jus de citron",
+            "2 c. à s. d'huile de colza ou d'olive",
+            "1 gousse d'ail",
+            "sel, poivre"
+        ],
+        "etapes": [
+            "Râpez les carottes. Coupez en concombre et les tomates en petits dés. Coupez les tomates en quartiers. Coupez les oignons en tranches très fines.",
+            "Râpez les fromages frais en les passant dans les plus gros trous d'une râpe à fromage. Faites-les dorer dans une poêle avec un peu d'huile.",
+            "Préparez la sauce en mélangeant le yaourt grec, le jus de citron, l'huile de colza, la moutarde et la gousse d'ail en purée. Salez, poivrez.",
+            "Dans chaque galette, déposez d'abord la sauce, ensuite les carottes râpées, les dés de concombre, quelques feuilles de salade, les tomates fraîches, le fromage doré, les oignons et pour finir les petits pois de fromage panés. Repliez la galette.",
+            "Faites légèrement chauffer les galettes dans une poêle bien chaude deux minutes de chaque côté."
+        ],
+        "uuid": "cda394c9-c5f6-4a3d-874c-722968dd9263"
+    },
+    {
+        "nom": "Quiche aux asperges et aux lardons",
+        "ingredients": [
+            "1 pâte brisée",
+            "1 kg d'asperges",
+            "1 poignée de fromage râpé",
+            "15 cl de crème fraîche épaisse (ou 25 cl de crème liquide)",
+            "4 œufs"
+        ],
+        "etapes": [
+            "Préchauffez votre four à 200 degrés.",
+            "Pelez la base des asperges, coupez-les en rondelles puis faites-les fondre avec les lardons et une noisette de beurre pendant environ 10 minutes.",
+            "Égouttez puis répartissez sur votre pâte brisée.",
+            "Mélangez les œufs et la crème fraîche puis recouvrez les asperges. Nappez de fromage râpé.",
+            "Enfournez pendant 35 minutes.",
+            "Servez avec une salade."
+        ],
+        "uuid": "979207e9-3ebc-4487-95e4-8f9506d8a286"
+    },
+    {
+        "nom": "Tarte à la betterave et au chèvre",
+        "ingredients": [
+            "1 pâte feuilletée",
+            "150 g de fromage de chèvre",
+            "4 betteraves rouges cuites",
+            "20 cl de crème fraîche",
+            "2 poignées de noix",
+            "1 c. à s. de miel",
+            "sel, poivre"
+        ],
+        "etapes": [
+            "Faites cuire votre fond de tarte pendant 10 minutes à 200 degrés après l'avoir piqué avec une fourchette et le laisser cuire avec des haricots par exemple.",
+            "Étalez votre fromage.",
+            "Puis disposez vos betteraves préalablement coupées en lamelles.",
+            "Faites revenir les noix avec un peu d'eau et de miel pour les caraméliser, puis disposez-les sur la tarte.",
+            "Mélangez les œufs et la crème, assaisonnez puis versez le tout sur la tarte.",
+            "Enfournez pendant 30 minutes à 180 degrés. Servez avec une salade."
+        ],
+        "uuid": "130982d0-9abd-4038-bbf4-a2075e37358a"
+    },
+    {
+        "nom": "Houmous au chèvre et aux oignons",
+        "ingredients": [
+            "2 oignons rouges",
+            "2 gousses d'ail",
+            "2 filets d'anchois",
+            "400 g de pois chiches en boîte",
+            "100 g de chèvre frais",
+            "90 g de purée d'amande complète",
+            "le jus d'1 citron",
+            "poivre"
+        ],
+        "etapes": [
+            "Préchauffez le four à 180 degrés, mode chaleur tournante.",
+            "Épluchez et coupez les oignons rouges en 4. Épluchez les gousses d'ail.",
+            "Placez le tout sur une plaque recouverte de papier cuisson, arrosez d'huile d'olive, d'un filet de miel, ajoutez un peu de thym.",
+            "Salez et poivrez avant d'enfourner pour 35 minutes de cuisson en mélangeant à mi-cuisson.",
+            "Mixez les oignons et l'ail confits avec le reste des ingrédients jusqu'à obtenir une texture bien crémeuse.",
+            "Ajoutez un peu d'eau pour obtenir la texture souhaitée.",
+            "Réservez au frais et servez avec des crackers aux graines du pain libanais."
+        ],
+        "uuid": "004f0d55-1202-42fe-b7b3-b9cae2a247f7"
+    },
+    {
+        "nom": "Asperges panées",
+        "ingredients": [
+            "1 botte d'asperges vertes",
+            "1 œuf",
+            "1 tranche de pain de mie",
+            "1 louche de chapelure",
+            "2 c. à s. de parmesan râpé",
+            "2 c. à s. de gomasio",
+            "1 c. à s. de jus de citron",
+            "2 c. à s. de yaourt grec",
+            "quelques pousses de roquette",
+            "1 c. à s. d'huile d'olive",
+            "sel, poivre"
+        ],
+        "etapes": [
+            "Commencez par retirer la base dure des tiges d'asperges. Faites blanchir les asperges 5 à 6 minutes dans de l'eau bouillante salée puis passez-les sous l'eau froide. Préchauffez le four à 200 degrés, mode chaleur tournante.",
+            "Préparez trois assiettes : l'une contenant la farine, la deuxième contenant les œufs battus, et la dernière contenant les œufs battus. Ajoutez le parmesan à la chapelure. Vous pouvez éventuellement saler et poivrer la chapelure si vous le souhaitez. Passez les asperges dans la farine, puis dans les œufs, et pour finir dans la chapelure. Faites un deuxième passage dans les œufs et la chapelure.",
+            "Disposez vos asperges dans une plaque (sans qu'elles se chevauchent) sur la plaque de votre four sur une feuille de papier sulfurisé. Enfournez pendant quinze minutes de cuisson. Si une fois les asperges panées, poursuivez quelques minutes sous le gril.",
+            "Pour accompagner les asperges, vous pouvez préparer une sauce au yaourt : mélangez le yaourt grec, le jus de citron, le gomasio, l'huile d'olive et le poivre."
+        ],
+        "uuid": "2cd8682e-525e-4735-aa56-9068d33f4e7b"
+    },
+    {
+        "nom": "Quiche au chèvre et au brocoli",
+        "ingredients": [
+            "1 brocoli",
+            "1 bûche de chèvre",
+            "4 œufs",
+            "4 c. à s. de crème fraîche",
+            "200 g de lardons (facultatif)",
+            "1 pâte brisée du commerce (sans les bords)"
+        ],
+        "etapes": [
+            "Étalez votre pâte brisée dans le moule.",
+            "Disposez vos têtes de brocoli préalablement cuites (préférence à la vapeur).",
+            "Faites revenir vos lardons quelques minutes.",
+            "Mélangez les œufs, la crème et les lardons, assaisonnez puis recouvrez les brocolis.",
+            "Disposez les tranches de bûche de chèvre.",
+            "Enfournez pendant 35 à 40 minutes en surveillant de temps en temps.",
+            "Servez avec une salade verte."
+        ],
+        "uuid": "1295b3d7-aabd-4b4d-a3fb-a0bc2bd11d90"
+    },
+    {
+        "nom": "Tarte tatin à la courgette et burrata",
+        "ingredients": [
+            "1 pâte brisée maison ou du commerce",
+            "2 courgettes",
+            "4 c. à s. de parmesan râpé",
+            "1 burrata",
+            "4 c. à c. de miel",
+            "quelques feuilles de basilic frais",
+            "1 poignée de graines de sésame"
+        ],
+        "etapes": [
+            "Préchauffez le four à 210 degrés, mode chaleur tournante + bas du four.",
+            "Coupez les courgettes en fines rondelles à l'aide d'une mandoline et disposez-les sur une feuille de papier sulfurisé sur la plaque du four, salez, poivrez et enfournez pour 10 minutes de cuisson.",
+            "Étalez ensuite une pâte feuilletée ou brisée sur le plan de travail (si nécessaire).",
+            "Pour chaque tartelette, déposez 1 petit cuiller à café de miel sur le fond de la pâte, formez un disque avec les rondelles de courgette précuites en cercle sur chaque disque de miel et répartissez quelques copeaux de parmesan.",
+            "Déposez ensuite directement dans le plat à tarte brisée à l'aide d'un bol. Déposez les disques de pâte sur les courgettes en rabattant les bords pour former des petites tartelettes et enfournez pour environ 25 minutes de cuisson.",
+            "À la sortie du four, retournez les tartelettes sur une assiette, déposez la burrata et quelques feuilles de basilic frais. Servez avec une salade verte."
+        ],
+        "uuid": "33a38cdb-b6ff-4af8-84d0-def91711bde1"
+    },
+    {
+        "nom": "Vinaigrette légère au citron",
+        "ingredients": [
+            "1 c. à s. de moutarde",
+            "100 ml de jus de citron",
+            "1 c. à s. d'huile d'olive",
+            "1 c. à s. d'huile de sésame",
+            "sel, poivre"
+        ],
+        "etapes": [
+            "Mélangez bien tous les ingrédients et gardez la sauce dans un pot hermétique au frigo."
+        ],
+        "uuid": "c4e0488a-064e-4386-81ca-6b1967b44ad9"
+    },
+    {
+        "nom": "Vinaigrette à l'orange",
+        "ingredients": [
+            "le jus d'1 orange",
+            "1 c. à s. d'huile de colza",
+            "1 c. à s. de sauce soja sucrée",
+            "1 c. à s. de vinaigre de cidre",
+            "sel, poivre"
+        ],
+        "etapes": [
+            "Mélangez bien tous les ingrédients et gardez la sauce dans un pot hermétique au frigo."
+        ],
+        "uuid": "db6c78ce-6c92-4661-a57d-0c7e3688fb4f"
+    },
+    {
+        "nom": "Taboulé",
+        "ingredients": [
+            "300 g de semoule à couscous, gros grains moyens",
+            "50 g d'huile d'olive",
+            "1 citron",
+            "1 c. à c. de sel",
+            "4 c. à s. de jus de citron",
+            "1 oignon jaune",
+            "1 concombre",
+            "10 feuilles de menthe fraîche",
+            "5 branches de persil frais",
+            "2 poignées de raisins secs"
+        ],
+        "etapes": [
+            "Dans un saladier, mélangez le couscous avec l'huile d'olive, l'eau, le sel et le jus de citron. Réservez au frais.",
+            "Faites tremper les raisins secs quelques minutes dans de l'eau.",
+            "Émincez très finement l'oignon et hachez la menthe fraîche.",
+            "Coupez les tomates et le concombre en petits morceaux.",
+            "Dans un saladier, mélangez la semoule avec les raisins secs égouttés, l'oignon, la menthe, les tomates et les concombres.",
+            "Réservez 1h au frais avant de servir."
+        ],
+        "uuid": "effb4104-bc76-4bb6-892e-199f646ad449"
+    },
+    {
+        "nom": "Sauce bolognaise",
+        "ingredients": [
+            "2 carottes",
+            "2 branches de céleri",
+            "1 oignon doux",
+            "2 gousses d'ail",
+            "huile d'olive",
+            "poivre",
+            "500 g de bœuf haché",
+            "1 cube de bouillon de légumes",
+            "700 g de coulis de tomates"
+        ],
+        "etapes": [
+            "Hachez les carottes, le céleri branche et l'oignon en très petits morceaux. Écrasez l'ail avec un presse-ail.",
+            "Faites revenir le tout une dizaine de minutes dans un peu d'huile d'olive.",
+            "Ajoutez le bœuf haché et faites revenir quelques minutes de plus.",
+            "Ajoutez le cube de bouillon et le coulis de tomates. Poivrez.",
+            "Cuisez 30 minutes à feu moyen."
+        ],
+        "uuid": "b653cc2d-e7c9-4855-a897-7d0c488636f8"
+    },
+    {
+        "nom": "Vinaigrette aux agrumes",
+        "ingredients": [
+            "1 c. à s. de moutarde",
+            "2 c. à s. de vinaigre balsamique blanc",
+            "1 c. à s. de miel",
+            "4 c. à s. de jus d'orange",
+            "2 c. à s. de jus de citron",
+            "2 c. à s. d'huile végétale",
+            "1 pincée de sel"
+        ],
+        "etapes": [
+            "Dans un récipient, mélangez la moutarde, le vinaigre et le miel jusqu'à obtenir une préparation homogène.",
+            "Incorporez progressivement le jus d'orange et le jus de citron, puis ajoutez l'huile en filet tout en continuant de mélanger.",
+            "Assaisonnez la vinaigrette avec une pincée de sel selon votre goût."
+        ],
+        "uuid": "7970b7dc-2e8f-4f5e-99ac-024efe9996a2"
+    },
+    {
+        "nom": "Tarte tatin d'endives au chèvre",
+        "ingredients": [
+            "1 pâte brisée maison ou du commerce",
+            "5 endives",
+            "25 g de beurre",
+            "2 c. à c. d'herbes de Provence",
+            "1 c. à s. de sucre roux",
+            "2 crottins de chèvre"
+        ],
+        "etapes": [
+            "Préchauffez le four à 180 degrés, mode chaleur tournante + bas du four.",
+            "Coupez les endives en quatre dans la longueur et enlevez la base dure et amère.",
+            "Faites cuire les endives à la vapeur jusqu'à ce qu'elles soient tendres, puis égouttez-les.",
+            "Dans une poêle, faites revenir les endives avec le beurre et le sucre roux. Elles doivent blondir.",
+            "Dans un moule à tarte, disposez les endives en rosace en partant du centre.",
+            "Étalez la pâte brisée sur les endives en rabattant les bords pour former la tarte.",
+            "Enfournez pour 30 minutes de cuisson.",
+            "Retournez la tarte dans un plat et servez tiède."
+        ],
+        "uuid": "f546a8cb-aa64-41c7-b2b5-2047b078a54b"
+    },
+    {
+        "nom": "Tarte aux asperges",
+        "ingredients": [
+            "1 pâte feuilletée",
+            "500 g d'asperges blanches",
+            "2 œufs",
+            "1 c. à c. de beurre",
+            "1/2 c. à c. de sucre",
+            "1/2 c. à c. de sel",
+            "150 g de jambon en tranches",
+            "25 cl de crème fraîche",
+            "1 pincée de muscade"
+        ],
+        "etapes": [
+            "Préchauffez le four à 210 degrés, mode chaleur tournante + bas du four.",
+            "Pelez les asperges blanches en partant de la tête. Pelez la partie inférieure des asperges vertes.",
+            "Portez une grande quantité d'eau à ébullition.",
+            "Ajoutez les asperges avec le sel, le sucre et le beurre. Retirez la casserole du feu et laissez reposer 15 minutes à couvert.",
+            "Égouttez les asperges.",
+            "Foncez un moule à tarte avec la pâte feuilletée. Piquez le fond avec une fourchette.",
+            "Répartissez les asperges égouttées sur la pâte. Coupez le jambon en lanières et disposez-les par-dessus les asperges.",
+            "Mélangez la crème, les œufs, le poivre, versez sur les asperges.",
+            "Enfournez pour 30 minutes de cuisson."
+        ],
+        "uuid": "a1cf5dfc-db50-482f-a23e-4a386c5ca9b0"
+    },
+    {
+        "nom": "Salade de patates à l'ail",
+        "ingredients": [
+            "3 grosses pommes de terre",
+            "200 g de tomates cerises",
+            "3 œufs durs",
+            "100 g d'olives vertes",
+            "5 branches de persil frais",
+            "1 citron vert",
+            "1 petite boîte de maïs",
+            "1 oeuf frais",
+            "200 ml d'huile d'olive",
+            "2 gousses d'ail",
+            "2 oignons rouges"
+        ],
+        "etapes": [
+            "Faites cuire les pommes de terre en morceaux à l'eau pendant une dizaine de minutes selon votre appareil.",
+            "Coupez les pommes de terre en cubes, les tomates cerises en 4, les œufs durs en cubes, les olives en rondelles et l'oignon en fines tranches. Hachez le persil.",
+            "Émiettez le thon.",
+            "Mélangez le tout dans un saladier.",
+            "Pour la sauce, mélangez avec un mixeur plongeant l'œuf frais, les gousses d'ail en purée et l'huile d'olive. Salez, poivrez et versez dans le saladier.",
+            "Mélangez bien le tout et ajoutez le jus de citron vert avant de servir."
+        ],
+        "uuid": "b522a60a-620d-4967-8b0d-3dcb08647085"
+    },
+    {
+        "nom": "Salade de pommes de terre, roquette et pesto",
+        "ingredients": [
+            "1 kg de petites pommes de terre",
+            "1 bouquet de roquette",
+            "1 bouquet de basilic",
+            "2 gousses d'ail",
+            "4 c. à s. de parmesan râpé",
+            "1 gousse d'ail",
+            "100 ml d'huile d'olive",
+            "sel, poivre"
+        ],
+        "etapes": [
+            "Pour commencer, coupez les pommes de terre en quartiers et faites-les cuire une quinzaine de minutes dans une casserole d'eau bouillante salée jusqu'à ce qu'elles soient tendres.",
+            "Rincez-les ensuite à l'eau froide.",
+            "Faites ensuite torréfier les deux poignées de pignons de pin à sec dans une poêle.",
+            "Préparez le pesto maison en mixant le bouquet de basilic avec les 40 g de pignons de pin, le parmesan, la gousse d'ail, le jus de citron et l'huile d'olive. Salez, poivrez."
+        ],
+        "uuid": "d391c3f7-b411-467b-94e2-ae38b59cd2a1"
+    },
+    {
+        "nom": "Salade de fenouil à l'orange",
+        "ingredients": [
+            "2 fenouils",
+            "1 orange à zeste",
+            "1 c. à c. de miel",
+            "le jus d'un citron",
+            "2 c. à s. d'huile d'olive",
+            "sel, poivre"
+        ],
+        "etapes": [
+            "Coupez les fenouils en lamelles très fines à l'aide d'une mandoline.",
+            "Épluchez l'orange.",
+            "Coupez l'orange en quartiers puis en tranches fines.",
+            "Faites une sauce avec le miel, le citron, et l'huile d'olive.",
+            "Mélangez la salade avec la sauce.",
+            "Au moment de servir, parsemez de zestes d'orange et de poivre du moulin."
+        ],
+        "uuid": "c07b4ce6-9c5c-4190-8b84-04a02affebfa"
+    },
+    {
+        "nom": "Salade composée au quinoa",
+        "ingredients": [
+            "200 g de quinoa",
+            "1 poivron rouge",
+            "1 oignon rouge",
+            "1 boîte de pois chiches en bocal, égouttés",
+            "1 c. à s. d'huile d'olive",
+            "2 c. à c. de miel",
+            "2 c. à c. d'harissa",
+            "2 c. à s. de jus de citron",
+            "50 g de feta",
+            "quelques feuilles de basilic"
+        ],
+        "etapes": [
+            "Faites cuire le quinoa dans une casserole d'eau bouillante salée en suivant les instructions de paquet.",
+            "Égouttez-le et laissez-le refroidir.",
+            "Préchauffez le four à 200 degrés, mode chaleur tournante.",
+            "Dans un saladier, mélangez les pois chiches avec la harissa et l'huile d'olive. Salez, poivrez.",
+            "Enfournez pour 10 min de cuisson.",
+            "Dans un saladier, mélangez le quinoa refroidi, le concombre coupé en petits dés, l'oignon rouge coupé en fines lamelles, les pois chiches et un mélange huile d'olive et miel.",
+            "Ajoutez quelques feuilles de basilic et de feta émiettée sur le dessus."
+        ],
+        "uuid": "535fc04a-b0e8-4aa9-aa6d-68e42f9d201b"
+    },
+    {
+        "nom": "Flan de courgettes",
+        "ingredients": [
+            "600 g de courgettes",
+            "100 g de mozzarella râpée",
+            "1 oignon",
+            "150 mL de crème liquide",
+            "2 œufs",
+            "sel, poivre",
+            "quelques tomates séchées",
+            "1 gousse d'ail",
+            "huile d'olive",
+            "2 branches de persil frais",
+            "quelques feuilles de basilic frais",
+            "noix de muscade moulue"
+        ],
+        "etapes_preparation": [
+            "Préchauffez le four à 180 degrés, mode chaleur tournante.",
+            "Réduisez l'oignon en purée à l'aide d'un presse-ail et émincez les échalotes.",
+            "Faites revenir le tout dans un poêle avec un filet d'huile d'olive jusqu'à ce que les échalotes soient colorées.",
+            "Ajoutez les courgettes coupées en dés et faites cuire encore une dizaine de minutes en remuant régulièrement.",
+            "Dans un saladier, mélangez la crème liquide, la ricotta, les œufs, le persil, les tomates séchées, quelques feuilles de basilic, quelques gouttes de muscade et la mozzarella râpée. Salez, poivrez. Ajoutez le mélange aux courgettes cuites. Mélangez bien.",
+            "Transvasez l'appareil dans un moule à cake ou dans des ramequins individuels.",
+            "Enfournez pour 20 à 25 minutes de cuisson."
+        ],
+        "uuid": "f078cf8c-bb80-49ae-a20f-c4a29e789efc"
+    },
+    {
+        "nom": "Gratin de fenouil",
+        "ingredients": [
+            "600 g de fenouil",
+            "400 g de tomates concassées en boîte",
+            "1 oignon",
+            "125 g de mascarpone",
+            "150 mL de crème liquide",
+            "60 g de parmesan",
+            "1 brin de persil frais",
+            "quelques feuilles de basilic frais",
+            "2 gousses d'ail",
+            "huile d'olive",
+            "sel, poivre"
+        ],
+        "etapes_preparation": [
+            "Émincez finement les oignons et réduisez l'ail en purée à l'aide d'un presse-ail.",
+            "Faites revenir le tout dans une grande poêle avec un filet d'huile d'olive.",
+            "Ajoutez les tomates concassées, l'origan, 100 mL d'eau et le thym. Salez, poivrez.",
+            "Faites cuire à feu doux pendant une vingtaine de minutes.",
+            "Pendant ce temps, coupez le fenouil en morceaux, faites-le cuire à la vapeur pendant une dizaine de minutes.",
+            "Préchauffez le four à 180 degrés, mode chaleur tournante.",
+            "Mélangez ensuite la crème liquide avec le parmesan, le persil et le basilic.",
+            "Dans un plat à gratin, placez le fenouil au fond, versez la sauce tomate par-dessus, terminez par la crème au parmesan.",
+            "Enfournez une vingtaine de minutes. Si nécessaire, passez sous le gril du four pour faire gratiner le dessus du plat."
+        ],
+        "uuid": "3ebac4e7-7666-41a9-a2dd-2ad280a0bc43"
+    }
 ]
