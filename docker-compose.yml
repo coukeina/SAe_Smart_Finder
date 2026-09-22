@@ -4,9 +4,9 @@ services:
     container_name: pg_smart_recipe_and_inventory_manager_anti_gaspillage
     restart: unless-stopped
     environment:
-      POSTGRES_USER: app_user
-      POSTGRES_PASSWORD: app_secret
-      POSTGRES_DB: app_db
+      POSTGRES_USER: ${POSTGRES_USER:-app_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-app_secret}
+      POSTGRES_DB: ${POSTGRES_DB:-app_db}
     volumes:
       - pg_data_smart_recipe_and_inventory_manager_anti_gaspillage:/var/lib/postgresql/data # persistance    
     ports:
@@ -35,14 +35,17 @@ services:
     ports:
     - "7860:7860"
     environment:
-      OLLAMA_HOST: http://ollama:11434
-      LLM_MODEL: gemma4:12b
-      VECTOR_DB_PATH: /app/vector_store
+      OLLAMA_HOST: ${OLLAMA_HOST:-http://ollama:11434}
+      LLM_MODEL: ${LLM_MODEL:-gemma4:12b}
+      VLM_MODEL: ${VLM_MODEL:-qwen3-vl:instruct}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-embeddinggemma}
+      OLLAMA_TIMEOUT_SECONDS: ${OLLAMA_TIMEOUT_SECONDS:-120}
+      VECTOR_DB_PATH: ${VECTOR_DB_PATH:-/app/data/vector_store}
       DB_HOST: pg
       DB_PORT: 5432
-      DB_NAME: app_db
-      DB_USER: app_user
-      DB_PASSWORD: app_secret
+      DB_NAME: ${POSTGRES_DB:-app_db}
+      DB_USER: ${POSTGRES_USER:-app_user}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-app_secret}
     volumes:
       - ./data:/app/data # persistance des vecteurs, logs...
       - ./src/smart_recipe_inventory_manager:/app/src/smart_recipe_inventory_manager
