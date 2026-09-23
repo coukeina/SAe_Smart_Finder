@@ -33,6 +33,6 @@ async def detect_ingredients(image_path: str) -> dict[str, Any]:
 
     ingredients = result.get("ingredients")
     if not isinstance(ingredients, list):
-        raise ValueError("La réponse VLM doit contenir une liste ingredients.")
+        raise ValueError("La réponse VLM doit contenir une liste d'ingrédients.")
 
-    return {"ingredients": ingredients}
+    return {"ingrédients": ingredients}
