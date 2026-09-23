@@ -1,16 +1,25 @@
+import base64
+import json
+from pathlib import Path
 from typing import Any, Mapping, Sequence
 
 from ..config import settings
 from .base import BaseModelEndpoint
 
+import os
 
 class OllamaVLM(BaseModelEndpoint):
+    model = os.getenv("VLM_MODEL", "qwen3-vl:4b")
+    host = os.getenv("OLLAMA_HOST", "http://ollama:11434")
+
     def __init__(
         self,
-        model: str | None = None,
-        host: str | None = None,
+        model: str = "qwen3-vl:4b",
+        host: str = "http://localhost:11434",
         timeout: float | None = None,
     ) -> None:
+        self.model = model
+        self.host = host.rstrip("/")
         super().__init__(
             model=model or settings.vlm_model,
             host=host or settings.ollama_host,
@@ -48,6 +57,28 @@ class OllamaVLM(BaseModelEndpoint):
         }
         payload.update(kwargs)
         return await self._post("/api/chat", payload)
+
+    async def detect_ingredients(
+        self,
+        image_path: str,
+        prompt: str,
+    ) -> dict[str, Any]:
+        image_base64 = base64.b64encode(
+            Path(image_path).read_bytes()
+        ).decode("utf-8")
+
+        response = await self.chat(
+            [{
+                "role": "user",
+                "content": prompt,
+                "images": [image_base64],
+            }],
+            format="json",
+            options={"temperature": 0},
+        )
+
+        content = response["message"]["content"]
+        return json.loads(content)
 import asyncio
 from .base import BaseModelEndpoint
 from pydantic import BaseModel, Field

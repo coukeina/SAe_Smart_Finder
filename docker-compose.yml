@@ -37,7 +37,7 @@ services:
     environment:
       OLLAMA_HOST: ${OLLAMA_HOST:-http://ollama:11434}
       LLM_MODEL: ${LLM_MODEL:-gemma4:12b}
-      VLM_MODEL: ${VLM_MODEL:-qwen3-vl:instruct}
+      VLM_MODEL: ${VLM_MODEL:-qwen3-vl:4b}
       EMBEDDING_MODEL: ${EMBEDDING_MODEL:-embeddinggemma}
       OLLAMA_TIMEOUT_SECONDS: ${OLLAMA_TIMEOUT_SECONDS:-120}
       VECTOR_DB_PATH: ${VECTOR_DB_PATH:-/app/data/vector_store}

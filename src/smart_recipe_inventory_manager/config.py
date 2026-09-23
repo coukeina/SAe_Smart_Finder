@@ -16,7 +16,7 @@ class Settings(BaseSettings):
 
 	ollama_host: str = Field(default="http://localhost:11434", alias="OLLAMA_HOST")
 	llm_model: str = Field(default="gemma4:12b", alias="LLM_MODEL")
-	vlm_model: str = Field(default="qwen3-vl:instruct", alias="VLM_MODEL")
+	vlm_model: str = Field(default="qwen3-vl:4b", alias="VLM_MODEL")
 	embedding_model: str = Field(default="embeddinggemma", alias="EMBEDDING_MODEL")
 	ollama_timeout_seconds: float = Field(default=120.0, alias="OLLAMA_TIMEOUT_SECONDS")
 	gradio_host: str = Field(default="0.0.0.0", alias="GRADIO_HOST")
