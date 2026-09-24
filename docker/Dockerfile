@@ -1,7 +1,10 @@
 # ---------- Builder ----------
 FROM python:3.12-slim AS builder
 WORKDIR /app
+
 COPY pyproject.toml ./
+COPY src ./src
+
 RUN pip install --upgrade pip && \
     pip wheel --no-cache-dir --wheel-dir /wheels .
     
