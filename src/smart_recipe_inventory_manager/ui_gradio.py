@@ -1,7 +1,6 @@
 import gradio as gr
 
 from .config import settings
-<<<<<<< HEAD
 from .service.core import detect_ingredients
 
 
@@ -46,7 +45,6 @@ def build_demo() -> gr.Blocks:
 			outputs=ingredients_output,
 		)
 	return demo
-=======
 from .service.core import suggest_recipe
 
 def build_demo() -> gr.Blocks:
@@ -91,7 +89,6 @@ def build_demo() -> gr.Blocks:
         )
 
     return demo
->>>>>>> feat/ollama-recipe-generation
 
 
 if __name__ == "__main__":
