@@ -39,7 +39,7 @@ services:
       LLM_MODEL: ${LLM_MODEL:-gemma4:12b}
       VLM_MODEL: ${VLM_MODEL:-qwen3-vl:4b}
       EMBEDDING_MODEL: ${EMBEDDING_MODEL:-embeddinggemma}
-      OLLAMA_TIMEOUT_SECONDS: ${OLLAMA_TIMEOUT_SECONDS:-120}
+      OLLAMA_TIMEOUT_SECONDS: ${OLLAMA_TIMEOUT_SECONDS:-300}
       VECTOR_DB_PATH: ${VECTOR_DB_PATH:-/app/data/vector_store}
       DB_HOST: pg
       DB_PORT: 5432

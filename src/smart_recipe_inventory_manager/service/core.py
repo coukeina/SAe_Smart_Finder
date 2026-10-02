@@ -1,4 +1,3 @@
-from annotationlib import *
 from ..ollama_client.vlm import OllamaVLM
 from typing import Any
 

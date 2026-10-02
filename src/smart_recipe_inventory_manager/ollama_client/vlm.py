@@ -6,20 +6,14 @@ from typing import Any, Mapping, Sequence
 from ..config import settings
 from .base import BaseModelEndpoint
 
-import os
 
 class OllamaVLM(BaseModelEndpoint):
-    model = os.getenv("VLM_MODEL", "qwen3-vl:4b")
-    host = os.getenv("OLLAMA_HOST", "http://ollama:11434")
-
     def __init__(
         self,
-        model: str = "qwen3-vl:4b",
-        host: str = "http://localhost:11434",
+        model: str | None = None,
+        host: str | None = None,
         timeout: float | None = None,
     ) -> None:
-        self.model = model
-        self.host = host.rstrip("/")
         super().__init__(
             model=model or settings.vlm_model,
             host=host or settings.ollama_host,
