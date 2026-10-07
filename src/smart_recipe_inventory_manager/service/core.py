@@ -1,7 +1,4 @@
-<<<<<<< HEAD
 from ..ollama_client.vlm import OllamaVLM
-=======
->>>>>>> feat/ollama-recipe-generation
 from typing import Any
 from ..ollama_client.llm import OllamaLLM
 from ..ollama_client.vlm import OllamaVLM
