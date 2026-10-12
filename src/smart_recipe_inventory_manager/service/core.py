@@ -76,7 +76,7 @@ async def suggest_recipe(
     preferences: str = "",
 ) -> dict[str, Any]:
     detection = await detect_ingredients(image_path)
-    ingredients = detection["ingredients"]
+    ingredients = detection["ingrédients"]
 
     recipes = search_recipes(ingredients)
 
