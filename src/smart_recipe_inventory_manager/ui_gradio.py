@@ -2,6 +2,7 @@ import gradio as gr
 
 from .config import settings
 from .service.core import suggest_recipe
+from .ollama_client.base import OllamaError
 
 
 async def propose_recipe(
@@ -11,10 +12,13 @@ async def propose_recipe(
 	if not image_path:
 		return [], {"error": "Aucune image sélectionnée."}
 
-	result = await suggest_recipe(
-		image_path=image_path,
-		preferences=user_preferences or "",
-	)
+	try:
+		result = await suggest_recipe(
+			image_path=image_path,
+			preferences=user_preferences or "",
+		)
+	except OllamaError as error:
+		return [], {"error": f"Erreur Ollama : {error}"}
 	ingredients = result.get("ingredients", [])
 	ingredient_rows = [
 		[item.get("name"), item.get("quantity"), item.get("maturity")]

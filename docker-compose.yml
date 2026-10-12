@@ -25,6 +25,12 @@ services:
     - "11434:11434"
     volumes:
     - ollama_data:/root/.ollama
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
 
   # ------- Application (subject-specific) -------  
   app:
@@ -53,7 +59,7 @@ services:
       pg:
         condition: service_healthy
       ollama:
-        condition: service_started
+        condition: service_healthy
     restart: unless-stopped
 
 volumes:
