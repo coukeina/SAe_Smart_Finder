@@ -1,10 +1,11 @@
+import asyncio
 import base64
 import json
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
 from ..config import settings
-from .base import BaseModelEndpoint, OllamaResponseError
+from .base import BaseModelEndpoint, OllamaResponseError, RETRY_DELAY_SECONDS
 
 
 class OllamaVLM(BaseModelEndpoint):
@@ -62,27 +63,44 @@ class OllamaVLM(BaseModelEndpoint):
             Path(image_path).read_bytes()
         ).decode("utf-8")
 
-        response = await self.chat(
-            [{
-                "role": "user",
-                "content": prompt,
-                "images": [image_base64],
-            }],
-            format=schema or "json",
-            options={"temperature": 0},
-        )
+        for attempt in range(2):
+            response = await self.chat(
+                [{
+                    "role": "user",
+                    "content": prompt,
+                    "images": [image_base64],
+                }],
+                format=schema or "json",
+                options={"temperature": 0},
+            )
 
-        message = response.get("message")
-        content = message.get("content") if isinstance(message, dict) else None
-        if not isinstance(content, str):
-            raise OllamaResponseError("ollama vision response is missing message content")
+            message = response.get("message")
+            content = message.get("content") if isinstance(message, dict) else None
+            if not isinstance(content, str):
+                if attempt == 0:
+                    await asyncio.sleep(RETRY_DELAY_SECONDS)
+                    continue
+                raise OllamaResponseError(
+                    "ollama vision response is missing message content"
+                )
 
-        try:
-            payload = json.loads(content)
-        except json.JSONDecodeError as exc:
-            raise OllamaResponseError("ollama vision response contains malformed JSON") from exc
+            try:
+                payload = json.loads(content)
+            except json.JSONDecodeError as exc:
+                if attempt == 0:
+                    await asyncio.sleep(RETRY_DELAY_SECONDS)
+                    continue
+                raise OllamaResponseError(
+                    "ollama vision response contains malformed JSON"
+                ) from exc
 
-        return payload
+            if not isinstance(payload, dict):
+                raise OllamaResponseError(
+                    "ollama vision JSON response must be an object"
+                )
+            return payload
+
+        raise OllamaResponseError("ollama vision response remained malformed after retry")
 import asyncio
 from .base import BaseModelEndpoint
 from pydantic import BaseModel, Field

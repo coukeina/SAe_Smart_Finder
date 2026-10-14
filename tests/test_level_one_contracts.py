@@ -78,6 +78,24 @@ class StubVLM(OllamaVLM):
 		return {"message": {"content": self.content}}
 
 
+class SequenceContentVLM(OllamaVLM):
+	def __init__(self, responses: list[str]) -> None:
+		self.responses = responses
+		self.calls = 0
+
+	async def generate(self, prompt: str, **kwargs: Any) -> str:
+		raise NotImplementedError
+
+	async def chat(
+		self,
+		messages: Sequence[Mapping[str, Any]],
+		**kwargs: Any,
+	) -> dict[str, Any]:
+		content = self.responses[self.calls]
+		self.calls += 1
+		return {"message": {"content": content}}
+
+
 class StubDetectionVLM(OllamaVLM):
 	def __init__(self, ingredients: list[dict[str, Any]]) -> None:
 		self.ingredients = ingredients
@@ -325,11 +343,45 @@ class LevelOneContractTests(unittest.IsolatedAsyncioTestCase):
 		with patch(
 			"smart_recipe_inventory_manager.ollama_client.vlm.Path.read_bytes",
 			return_value=b"image",
+		), patch(
+			"smart_recipe_inventory_manager.ollama_client.vlm.asyncio.sleep",
+			new=AsyncMock(),
 		):
 			vlm = StubVLM("{not-json")
 
 			with self.assertRaises(OllamaResponseError):
 				await detect_ingredients("image.jpg", vlm=vlm)
+
+	async def test_vlm_retries_malformed_json_once(self) -> None:
+		vlm = SequenceContentVLM([
+			"{not-json",
+			json.dumps({"ingredients": [{"name": "tomate"}]}),
+		])
+		with patch(
+			"smart_recipe_inventory_manager.ollama_client.vlm.Path.read_bytes",
+			return_value=b"image",
+		), patch(
+			"smart_recipe_inventory_manager.ollama_client.vlm.asyncio.sleep",
+			new=AsyncMock(),
+		):
+			result = await detect_ingredients("image.jpg", vlm=vlm)
+
+		self.assertEqual(result["ingredients"][0]["name"], "tomate")
+		self.assertEqual(vlm.calls, 2)
+
+	async def test_vlm_stops_after_one_malformed_json_retry(self) -> None:
+		vlm = SequenceContentVLM(["{not-json", "{still-not-json"])
+		with patch(
+			"smart_recipe_inventory_manager.ollama_client.vlm.Path.read_bytes",
+			return_value=b"image",
+		), patch(
+			"smart_recipe_inventory_manager.ollama_client.vlm.asyncio.sleep",
+			new=AsyncMock(),
+		):
+			with self.assertRaises(OllamaResponseError):
+				await detect_ingredients("image.jpg", vlm=vlm)
+
+		self.assertEqual(vlm.calls, 2)
 
 	async def test_detect_ingredients_rejects_invalid_schema(self) -> None:
 		with patch(

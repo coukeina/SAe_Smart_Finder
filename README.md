@@ -78,9 +78,9 @@ communique pas directement avec les modèles.
    si le service IA est indisponible ou si sa réponse ne peut pas être utilisée.
 
 Les requêtes réseau transitoirement en échec sont retentées au plus trois fois.
-Une réponse JSON mal formée du LLM est retentée une fois. Un dépassement de la
-fenêtre de contexte n'est pas retenté : l'interface suggère alors une photo plus
-ciblée.
+Une réponse JSON mal formée du VLM ou du LLM est retentée une fois. Un
+dépassement de la fenêtre de contexte n'est pas retenté : l'interface suggère
+alors une photo plus ciblée.
 
 ### Modèles Ollama
 
