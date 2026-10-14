@@ -1,9 +1,9 @@
+import asyncio
 import json
 import re
 from typing import Any, Mapping, Sequence
 
-from .base import BaseModelEndpoint
-from .base import OllamaResponseError
+from .base import BaseModelEndpoint, OllamaResponseError, RETRY_DELAY_SECONDS
 from ..config import settings
 
 
@@ -40,7 +40,7 @@ class OllamaLLM(BaseModelEndpoint):
         resp = await self._post("/api/generate", payload)
         response = resp.get("response")
         if not isinstance(response, str):
-            raise ValueError("ollama generate response is missing 'response'")
+            raise OllamaResponseError("ollama generate response is missing 'response'")
         return response
 
     async def chat(
@@ -69,16 +69,23 @@ class OllamaLLM(BaseModelEndpoint):
         **kwargs: Any,
     ) -> dict[str, Any]:
         """Generate and defensively parse one JSON object."""
-        response = await self.generate(
-            prompt,
-            format=schema or "json",
-            **kwargs,
-        )
-        cleaned = re.sub(r"^```(?:json)?\s*|\s*```$", "", response.strip())
-        try:
-            parsed = json.loads(cleaned)
-        except json.JSONDecodeError as exc:
-            raise OllamaResponseError("ollama returned malformed JSON") from exc
-        if not isinstance(parsed, dict):
-            raise OllamaResponseError("ollama JSON response must be an object")
-        return parsed
+        for attempt in range(2):
+            response = await self.generate(
+                prompt,
+                format=schema or "json",
+                **kwargs,
+            )
+            cleaned = re.sub(r"^```(?:json)?\s*|\s*```$", "", response.strip())
+            try:
+                parsed = json.loads(cleaned)
+            except json.JSONDecodeError as exc:
+                if attempt == 1:
+                    raise OllamaResponseError("ollama returned malformed JSON") from exc
+                await asyncio.sleep(RETRY_DELAY_SECONDS)
+                continue
+
+            if not isinstance(parsed, dict):
+                raise OllamaResponseError("ollama JSON response must be an object")
+            return parsed
+
+        raise OllamaResponseError("ollama returned malformed JSON after retry")

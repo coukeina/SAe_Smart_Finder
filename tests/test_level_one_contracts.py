@@ -1,10 +1,15 @@
 import json
 import unittest
-from pathlib import Path
 from typing import Any, Mapping, Sequence
-from unittest.mock import patch
+from unittest.mock import AsyncMock, patch
 
-from smart_recipe_inventory_manager.ollama_client.base import OllamaResponseError
+import httpx
+
+from smart_recipe_inventory_manager.ollama_client.base import (
+	BaseModelEndpoint,
+	OllamaContextError,
+	OllamaResponseError,
+)
 from smart_recipe_inventory_manager.ollama_client.llm import OllamaLLM
 from smart_recipe_inventory_manager.ollama_client.vlm import OllamaVLM
 from smart_recipe_inventory_manager.service.core import detect_ingredients, generate_recipe
@@ -25,12 +30,27 @@ class StubLLM(OllamaLLM):
 		return self.payload
 
 
-class RawResponseLLM(OllamaLLM):
-	def __init__(self, response: str) -> None:
-		self.response = response
+class SequenceResponseLLM(OllamaLLM):
+	def __init__(self, responses: list[str]) -> None:
+		self.responses = responses
+		self.calls = 0
 
 	async def generate(self, prompt: str, **kwargs: Any) -> str:
-		return self.response
+		response = self.responses[self.calls]
+		self.calls += 1
+		return response
+
+
+class StubEndpoint(BaseModelEndpoint):
+	async def generate(self, prompt: str, **kwargs: Any) -> str:
+		raise NotImplementedError
+
+	async def chat(
+		self,
+		messages: Sequence[Mapping[str, Any]],
+		**kwargs: Any,
+	) -> dict[str, Any]:
+		raise NotImplementedError
 
 
 class StubVLM(OllamaVLM):
@@ -48,6 +68,126 @@ class StubVLM(OllamaVLM):
 	) -> dict[str, Any]:
 		self.output_schema = kwargs.get("format")
 		return {"message": {"content": self.content}}
+
+
+class OllamaRetryTests(unittest.IsolatedAsyncioTestCase):
+	async def test_connection_and_timeout_errors_are_retried(self) -> None:
+		for error_type in (httpx.ConnectError, httpx.ReadTimeout):
+			with self.subTest(error_type=error_type.__name__):
+				request_count = 0
+
+				def respond(request: httpx.Request) -> httpx.Response:
+					nonlocal request_count
+					request_count += 1
+					if request_count == 1:
+						raise error_type("temporary failure", request=request)
+					return httpx.Response(200, json={"response": "ok"})
+
+				transport = httpx.MockTransport(respond)
+				real_client = httpx.AsyncClient
+				client_factory = lambda **kwargs: real_client(
+					transport=transport,
+					**kwargs,
+				)
+				endpoint = StubEndpoint("test-model", "http://ollama", 1)
+
+				with (
+					patch(
+						"smart_recipe_inventory_manager.ollama_client.base.httpx.AsyncClient",
+						side_effect=client_factory,
+					),
+					patch(
+						"smart_recipe_inventory_manager.ollama_client.base.asyncio.sleep",
+						new=AsyncMock(),
+					),
+				):
+					result = await endpoint._post("/api/generate", {})
+
+				self.assertEqual(result, {"response": "ok"})
+				self.assertEqual(request_count, 2)
+
+	async def test_transient_server_error_is_retried(self) -> None:
+		request_count = 0
+
+		def respond(request: httpx.Request) -> httpx.Response:
+			nonlocal request_count
+			request_count += 1
+			if request_count == 1:
+				return httpx.Response(503, json={"error": "temporarily unavailable"})
+			return httpx.Response(200, json={"response": "ok"})
+
+		transport = httpx.MockTransport(respond)
+		real_client = httpx.AsyncClient
+		client_factory = lambda **kwargs: real_client(transport=transport, **kwargs)
+		endpoint = StubEndpoint("test-model", "http://ollama", 1)
+
+		with (
+			patch(
+				"smart_recipe_inventory_manager.ollama_client.base.httpx.AsyncClient",
+				side_effect=client_factory,
+			),
+			patch(
+				"smart_recipe_inventory_manager.ollama_client.base.asyncio.sleep",
+				new=AsyncMock(),
+			),
+		):
+			result = await endpoint._post("/api/generate", {})
+
+		self.assertEqual(result, {"response": "ok"})
+		self.assertEqual(request_count, 2)
+
+	async def test_context_limit_error_is_not_retried(self) -> None:
+		request_count = 0
+
+		def respond(request: httpx.Request) -> httpx.Response:
+			nonlocal request_count
+			request_count += 1
+			return httpx.Response(
+				500,
+				json={"error": "input length exceeds the context length"},
+			)
+
+		transport = httpx.MockTransport(respond)
+		real_client = httpx.AsyncClient
+		client_factory = lambda **kwargs: real_client(transport=transport, **kwargs)
+		endpoint = StubEndpoint("test-model", "http://ollama", 1)
+
+		with patch(
+			"smart_recipe_inventory_manager.ollama_client.base.httpx.AsyncClient",
+			side_effect=client_factory,
+		):
+			with self.assertRaises(OllamaContextError):
+				await endpoint._post("/api/generate", {})
+
+		self.assertEqual(request_count, 1)
+
+	async def test_server_error_fails_after_bounded_retries(self) -> None:
+		request_count = 0
+
+		def respond(request: httpx.Request) -> httpx.Response:
+			nonlocal request_count
+			request_count += 1
+			return httpx.Response(503, json={"error": "unavailable"})
+
+		transport = httpx.MockTransport(respond)
+		real_client = httpx.AsyncClient
+		client_factory = lambda **kwargs: real_client(transport=transport, **kwargs)
+		endpoint = StubEndpoint("test-model", "http://ollama", 1)
+
+		with (
+			patch(
+				"smart_recipe_inventory_manager.ollama_client.base.httpx.AsyncClient",
+				side_effect=client_factory,
+			),
+			patch(
+				"smart_recipe_inventory_manager.ollama_client.base.asyncio.sleep",
+				new=AsyncMock(),
+			),
+		):
+			with self.assertRaises(OllamaResponseError):
+				await endpoint._post("/api/generate", {})
+
+		self.assertEqual(request_count, 3)
 
 
 class LevelOneContractTests(unittest.IsolatedAsyncioTestCase):
@@ -116,11 +256,40 @@ class LevelOneContractTests(unittest.IsolatedAsyncioTestCase):
 			await generate_recipe(ingredients=[{"name": "tomate"}], llm=llm)
 
 	async def test_generate_recipe_rejects_malformed_json(self) -> None:
-		with self.assertRaises(OllamaResponseError):
+		llm = SequenceResponseLLM(["{not-json", "{still-not-json"])
+		with patch(
+			"smart_recipe_inventory_manager.ollama_client.llm.asyncio.sleep",
+			new=AsyncMock(),
+		), self.assertRaises(OllamaResponseError):
 			await generate_recipe(
 				ingredients=[{"name": "tomate"}],
-				llm=RawResponseLLM("{not-json"),
+				llm=llm,
 			)
+
+		self.assertEqual(llm.calls, 2)
+
+	async def test_generate_recipe_retries_malformed_json_once(self) -> None:
+		llm = SequenceResponseLLM([
+			"{not-json",
+			json.dumps({
+				"title": "Soupe",
+				"ingredients": ["tomates"],
+				"steps": ["Cuire."],
+				"cooking_time": "20 minutes",
+			}),
+		])
+
+		with patch(
+			"smart_recipe_inventory_manager.ollama_client.llm.asyncio.sleep",
+			new=AsyncMock(),
+		):
+			recipe = await generate_recipe(
+				ingredients=[{"name": "tomate"}],
+				llm=llm,
+			)
+
+		self.assertEqual(recipe["title"], "Soupe")
+		self.assertEqual(llm.calls, 2)
 
 
 if __name__ == "__main__":

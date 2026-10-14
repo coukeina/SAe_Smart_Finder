@@ -13,5 +13,5 @@
 * [x] Définition de schémas typés pour la détection d'ingrédients et les recettes générées.
 * [x] Contraintes JSON transmises aux adaptateurs VLM et LLM, avec validation des réponses au niveau du service.
 * [x] Tests unitaires couvrant les réponses valides, le JSON malformé et les structures incomplètes.
-* [ ] Retry et gestion testée des indisponibilités, délais dépassés et dépassements de contexte.
+* [x] Retry borné des erreurs réseau (indisponibilité, délai dépassé), serveur et JSON généré malformé ; dépassement de contexte signalé sans retry.
 * [ ] Cas de détection vide ou d'ingrédients incompatibles.
