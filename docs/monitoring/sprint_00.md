@@ -16,3 +16,4 @@
 * [x] Retry borné des erreurs réseau (indisponibilité, délai dépassé), serveur et JSON généré malformé ; dépassement de contexte signalé sans retry.
 * [x] Arrêt explicite si aucun ingrédient n'est détecté ; les ingrédients de la recette sont vérifiés contre la détection.
 * [ ] Détection sémantique avancée des associations d'ingrédients incompatibles.
+* [x] Parcours Gradio couvert : photo absente, affichage des ingrédients et recette, messages adaptés aux erreurs Ollama.

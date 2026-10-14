@@ -8,10 +8,12 @@ import httpx
 from smart_recipe_inventory_manager.ollama_client.base import (
 	BaseModelEndpoint,
 	OllamaContextError,
+	OllamaConnectionError,
 	OllamaResponseError,
 )
 from smart_recipe_inventory_manager.ollama_client.llm import OllamaLLM
 from smart_recipe_inventory_manager.ollama_client.vlm import OllamaVLM
+from smart_recipe_inventory_manager.ui_gradio import propose_recipe
 from smart_recipe_inventory_manager.service.core import (
 	RecipeInputError,
 	detect_ingredients,
@@ -201,6 +203,72 @@ class OllamaRetryTests(unittest.IsolatedAsyncioTestCase):
 				await endpoint._post("/api/generate", {})
 
 		self.assertEqual(request_count, 3)
+
+
+class GradioFlowTests(unittest.IsolatedAsyncioTestCase):
+	async def test_missing_image_returns_a_user_facing_error(self) -> None:
+		with patch(
+			"smart_recipe_inventory_manager.ui_gradio.suggest_recipe",
+			new=AsyncMock(),
+		) as suggest:
+			rows, recipe = await propose_recipe(None, None)
+
+		self.assertEqual(rows, [])
+		self.assertIn("Aucune image", recipe["error"])
+		suggest.assert_not_awaited()
+
+	async def test_success_returns_detected_ingredients_and_recipe(self) -> None:
+		expected = {
+			"ingredients": [{
+				"name": "tomate",
+				"quantity": 2,
+				"maturity": None,
+			}],
+			"recipe": {
+				"title": "Soupe",
+				"ingredients": ["tomate"],
+				"steps": ["Cuire."],
+				"cooking_time": "20 minutes",
+			},
+		}
+		with patch(
+			"smart_recipe_inventory_manager.ui_gradio.suggest_recipe",
+			new=AsyncMock(return_value=expected),
+		) as suggest:
+			rows, recipe = await propose_recipe("fridge.jpg", "rapide")
+
+		self.assertEqual(rows, [["tomate", 2, None]])
+		self.assertEqual(recipe, expected["recipe"])
+		suggest.assert_awaited_once_with(
+			image_path="fridge.jpg",
+			preferences="rapide",
+		)
+
+	async def test_ollama_failures_return_friendly_messages(self) -> None:
+		failures = (
+			(
+				OllamaContextError("context limit"),
+				"photo contient trop d'informations",
+			),
+			(
+				OllamaConnectionError("ollama unavailable"),
+				"service Ollama est inaccessible",
+			),
+			(
+				OllamaResponseError("bad output"),
+				"réponse exploitable",
+			),
+		)
+		for error, expected_message in failures:
+			with self.subTest(error=type(error).__name__):
+				with patch(
+					"smart_recipe_inventory_manager.ui_gradio.suggest_recipe",
+					new=AsyncMock(side_effect=error),
+				):
+					rows, recipe = await propose_recipe("fridge.jpg", None)
+
+				self.assertEqual(rows, [])
+				self.assertIn(expected_message, recipe["error"])
 
 
 class LevelOneContractTests(unittest.IsolatedAsyncioTestCase):

@@ -1,8 +1,13 @@
 import gradio as gr
 
 from .config import settings
+from .ollama_client.base import (
+	OllamaConnectionError,
+	OllamaContextError,
+	OllamaError,
+	OllamaResponseError,
+)
 from .service.core import RecipeInputError, suggest_recipe
-from .ollama_client.base import OllamaError
 
 
 async def propose_recipe(
@@ -17,8 +22,29 @@ async def propose_recipe(
 			image_path=image_path,
 			preferences=user_preferences or "",
 		)
+	except OllamaContextError:
+		return [], {
+			"error": (
+				"La photo contient trop d'informations pour être analysée. "
+				"Essayez une photo plus rapprochée."
+			)
+		}
+	except OllamaConnectionError:
+		return [], {
+			"error": (
+				"Le service Ollama est inaccessible. "
+				"Vérifiez qu'il est démarré, puis réessayez."
+			)
+		}
+	except OllamaResponseError:
+		return [], {
+			"error": (
+				"Le modèle n'a pas renvoyé une réponse exploitable. "
+				"Réessayez avec une autre photo."
+			)
+		}
 	except OllamaError as error:
-		return [], {"error": f"Erreur Ollama : {error}"}
+		return [], {"error": f"Une erreur Ollama est survenue : {error}"}
 	except RecipeInputError as error:
 		return [], {"error": str(error)}
 	ingredients = result.get("ingredients", [])
