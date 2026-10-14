@@ -51,12 +51,13 @@ Réponds strictement avec ce JSON :
 {
   "ingredients": [
     {
-      "name": "string",
-      "quantity": "number ou null",
-      "maturity": "string ou null"
+      "name": "tomates",
+      "quantity": 2,
+      "maturity": null
     }
   ]
 }
+quantity doit être un nombre ou null ; maturity doit être une chaîne ou null.
 """
 
 

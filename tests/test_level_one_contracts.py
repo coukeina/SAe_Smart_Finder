@@ -1,5 +1,6 @@
 import json
 import unittest
+from pathlib import Path
 from typing import Any, Mapping, Sequence
 from unittest.mock import AsyncMock, patch
 
@@ -272,6 +273,38 @@ class GradioFlowTests(unittest.IsolatedAsyncioTestCase):
 
 
 class LevelOneContractTests(unittest.IsolatedAsyncioTestCase):
+	async def test_level_one_scenario_dataset(self) -> None:
+		scenarios = json.loads(
+			(Path(__file__).parent / "fixtures" / "level1_scenarios.json")
+			.read_text(encoding="utf-8")
+		)
+
+		for scenario in scenarios:
+			with self.subTest(scenario=scenario["id"]):
+				if scenario["expected"] == "input-error":
+					with self.assertRaises(RecipeInputError):
+						await suggest_recipe(
+							image_path="unused.jpg",
+							vlm=StubDetectionVLM(scenario["detected_ingredients"]),
+							llm=StubLLM({}),
+						)
+					continue
+
+				llm = StubLLM(scenario["recipe"])
+				if scenario["expected"] == "response-error":
+					with self.assertRaises(OllamaResponseError):
+						await generate_recipe(
+							ingredients=scenario["detected_ingredients"],
+							llm=llm,
+						)
+					continue
+
+				recipe = await generate_recipe(
+					ingredients=scenario["detected_ingredients"],
+					llm=llm,
+				)
+				self.assertEqual(recipe["title"], scenario["recipe"]["title"])
+
 	async def test_detect_ingredients_validates_vlm_json(self) -> None:
 		with patch(
 			"smart_recipe_inventory_manager.ollama_client.vlm.Path.read_bytes",

@@ -1,0 +1,41 @@
+[
+  {
+    "id": "empty-detection",
+    "detected_ingredients": [],
+    "recipe": null,
+    "expected": "input-error"
+  },
+  {
+    "id": "single-usable-ingredient",
+    "detected_ingredients": [{"name": "banane"}],
+    "recipe": {
+      "title": "Banane rôtie",
+      "ingredients": ["banane"],
+      "steps": ["Faire cuire la banane."],
+      "cooking_time": "10 minutes"
+    },
+    "expected": "success"
+  },
+  {
+    "id": "incompatible-ingredients-no-coherent-recipe",
+    "detected_ingredients": [{"name": "tomate"}, {"name": "chocolat"}],
+    "recipe": {
+      "title": "Recette impossible",
+      "ingredients": [],
+      "steps": [],
+      "cooking_time": "0 minute"
+    },
+    "expected": "response-error"
+  },
+  {
+    "id": "recipe-adds-ingredient-not-detected",
+    "detected_ingredients": [{"name": "tomate"}],
+    "recipe": {
+      "title": "Plat inventé",
+      "ingredients": ["tomate", "fromage"],
+      "steps": ["Cuire."],
+      "cooking_time": "10 minutes"
+    },
+    "expected": "response-error"
+  }
+]

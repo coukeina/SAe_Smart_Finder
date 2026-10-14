@@ -15,5 +15,6 @@
 * [x] Tests unitaires couvrant les réponses valides, le JSON malformé et les structures incomplètes.
 * [x] Retry borné des erreurs réseau (indisponibilité, délai dépassé), serveur et JSON généré malformé ; dépassement de contexte signalé sans retry.
 * [x] Arrêt explicite si aucun ingrédient n'est détecté ; les ingrédients de la recette sont vérifiés contre la détection.
-* [ ] Détection sémantique avancée des associations d'ingrédients incompatibles.
+* [x] Jeu de scénarios pour détection vide, ingrédient isolé, couple sans recette cohérente et ingrédient inventé par le LLM.
 * [x] Parcours Gradio couvert : photo absente, affichage des ingrédients et recette, messages adaptés aux erreurs Ollama.
+* [x] README actualisé avec le parcours niveau 1, les modèles, les tests et le démarrage local.

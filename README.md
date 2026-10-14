@@ -60,6 +60,54 @@ Get-Content database/init.sql | docker compose exec -T pg psql -U app_user -d ap
 docker compose down
 ```
 
+## Niveau 1 : proposer une recette depuis une photo
+
+Le premier niveau suit les couches de l'architecture SAE : l'interface Gradio
+appelle le service métier, qui orchestre les adaptateurs Ollama. L'interface ne
+communique pas directement avec les modèles.
+
+1. L'utilisateur envoie une photo du réfrigérateur, du placard ou d'aliments.
+2. Le VLM liste les ingrédients visibles dans un JSON contraint, avec quantité
+   et maturité si elles peuvent être estimées.
+3. Le service valide la détection et s'arrête avec un message explicite si aucun
+   ingrédient n'est détecté.
+4. Le LLM propose une recette structurée (titre, ingrédients, étapes et durée).
+   Le service refuse une réponse invalide ou contenant un ingrédient qui ne
+   figure pas dans la détection.
+5. Gradio affiche les ingrédients détectés et la recette, ou un message lisible
+   si le service IA est indisponible ou si sa réponse ne peut pas être utilisée.
+
+Les requêtes réseau transitoirement en échec sont retentées au plus trois fois.
+Une réponse JSON mal formée du LLM est retentée une fois. Un dépassement de la
+fenêtre de contexte n'est pas retenté : l'interface suggère alors une photo plus
+ciblée.
+
+### Modèles Ollama
+
+Les modèles sont configurables avec `LLM_MODEL` et `VLM_MODEL`. Les valeurs par
+défaut du dépôt sont `gemma4:12b` et `qwen3-vl:4b`. Elles peuvent être remplacées
+dans l'environnement de Docker Compose. Après le démarrage d'Ollama, télécharger
+les modèles configurés, par exemple :
+
+```bash
+docker compose exec ollama ollama pull gemma4:12b
+docker compose exec ollama ollama pull qwen3-vl:4b
+```
+
+### Vérifier les tests
+
+Depuis le dossier `SAe_Smart_Finder`, sous PowerShell :
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m unittest discover -s tests -v
+```
+
+Les tests couvrent les contrats JSON, un jeu de scénarios d'ingrédients
+disponibles dans `tests/fixtures/level1_scenarios.json`, les erreurs et retries
+Ollama, ainsi que la conversion des résultats et erreurs pour le callback
+Gradio. Ils n'ont pas besoin d'un serveur Ollama en cours d'exécution.
+
 ## Services Docker
 
 Le projet utilise une configuration Docker Compose avec trois services :
@@ -128,4 +176,3 @@ L'extension `vector` doit être activée avant la création de la table `recipe_
 - L'API Ollama n'est pas installée dans le conteneur applicatif ; elle est fournie par le service dédié `ollama`.
 - PostgreSQL n'est pas installé dans le conteneur applicatif ; il est fourni par le service `pg`.
 - La configuration Docker est pensée pour un environnement local de démonstration et de développement.
-
