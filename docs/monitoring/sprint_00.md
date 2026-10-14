@@ -14,4 +14,5 @@
 * [x] Contraintes JSON transmises aux adaptateurs VLM et LLM, avec validation des réponses au niveau du service.
 * [x] Tests unitaires couvrant les réponses valides, le JSON malformé et les structures incomplètes.
 * [x] Retry borné des erreurs réseau (indisponibilité, délai dépassé), serveur et JSON généré malformé ; dépassement de contexte signalé sans retry.
-* [ ] Cas de détection vide ou d'ingrédients incompatibles.
+* [x] Arrêt explicite si aucun ingrédient n'est détecté ; les ingrédients de la recette sont vérifiés contre la détection.
+* [ ] Détection sémantique avancée des associations d'ingrédients incompatibles.

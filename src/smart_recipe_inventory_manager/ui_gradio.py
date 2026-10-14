@@ -1,7 +1,7 @@
 import gradio as gr
 
 from .config import settings
-from .service.core import suggest_recipe
+from .service.core import RecipeInputError, suggest_recipe
 from .ollama_client.base import OllamaError
 
 
@@ -19,6 +19,8 @@ async def propose_recipe(
 		)
 	except OllamaError as error:
 		return [], {"error": f"Erreur Ollama : {error}"}
+	except RecipeInputError as error:
+		return [], {"error": str(error)}
 	ingredients = result.get("ingredients", [])
 	ingredient_rows = [
 		[item.get("name"), item.get("quantity"), item.get("maturity")]

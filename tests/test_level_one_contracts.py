@@ -12,7 +12,12 @@ from smart_recipe_inventory_manager.ollama_client.base import (
 )
 from smart_recipe_inventory_manager.ollama_client.llm import OllamaLLM
 from smart_recipe_inventory_manager.ollama_client.vlm import OllamaVLM
-from smart_recipe_inventory_manager.service.core import detect_ingredients, generate_recipe
+from smart_recipe_inventory_manager.service.core import (
+	RecipeInputError,
+	detect_ingredients,
+	generate_recipe,
+	suggest_recipe,
+)
 
 
 class StubLLM(OllamaLLM):
@@ -68,6 +73,14 @@ class StubVLM(OllamaVLM):
 	) -> dict[str, Any]:
 		self.output_schema = kwargs.get("format")
 		return {"message": {"content": self.content}}
+
+
+class StubDetectionVLM(OllamaVLM):
+	def __init__(self, ingredients: list[dict[str, Any]]) -> None:
+		self.ingredients = ingredients
+
+	async def detect_ingredients(self, image_path: str, prompt: str, **kwargs: Any) -> dict[str, Any]:
+		return {"ingredients": self.ingredients}
 
 
 class OllamaRetryTests(unittest.IsolatedAsyncioTestCase):
@@ -244,6 +257,43 @@ class LevelOneContractTests(unittest.IsolatedAsyncioTestCase):
 		self.assertIsNotNone(llm.schema)
 		self.assertIn("cooking_time", llm.schema["required"])
 
+	async def test_generate_recipe_rejects_ingredients_not_detected(self) -> None:
+		llm = StubLLM({
+			"title": "Omelette",
+			"ingredients": ["œufs", "fromage"],
+			"steps": ["Cuire."],
+			"cooking_time": "10 minutes",
+		})
+
+		with self.assertRaisesRegex(OllamaResponseError, "not detected"):
+			await generate_recipe(
+				ingredients=[{"name": "œufs"}],
+				llm=llm,
+			)
+
+	async def test_generate_recipe_rejects_empty_ingredient_list_before_calling_llm(self) -> None:
+		llm = StubLLM({})
+
+		with self.assertRaises(RecipeInputError):
+			await generate_recipe(ingredients=[], llm=llm)
+
+		self.assertIsNone(llm.schema)
+
+	async def test_generate_recipe_accepts_case_accent_and_plural_variants(self) -> None:
+		llm = StubLLM({
+			"title": "Salade",
+			"ingredients": ["TOMATES", "oeuf"],
+			"steps": ["Mélanger."],
+			"cooking_time": "5 minutes",
+		})
+
+		recipe = await generate_recipe(
+			ingredients=[{"name": "tomate"}, {"name": "œufs"}],
+			llm=llm,
+		)
+
+		self.assertEqual(recipe["title"], "Salade")
+
 	async def test_generate_recipe_rejects_incomplete_response(self) -> None:
 		llm = StubLLM({
 			"title": "Soupe de tomates",
@@ -290,6 +340,18 @@ class LevelOneContractTests(unittest.IsolatedAsyncioTestCase):
 
 		self.assertEqual(recipe["title"], "Soupe")
 		self.assertEqual(llm.calls, 2)
+
+	async def test_suggest_recipe_stops_when_no_ingredients_were_detected(self) -> None:
+		llm = StubLLM({})
+
+		with self.assertRaises(RecipeInputError):
+			await suggest_recipe(
+				image_path="unused.jpg",
+				vlm=StubDetectionVLM([]),
+				llm=llm,
+			)
+
+		self.assertIsNone(llm.schema)
 
 
 if __name__ == "__main__":
