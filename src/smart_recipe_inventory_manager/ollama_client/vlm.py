@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Any, Mapping, Sequence
 
 from ..config import settings
-from .base import BaseModelEndpoint
+from .base import BaseModelEndpoint, OllamaResponseError
 
 
 class OllamaVLM(BaseModelEndpoint):
@@ -56,6 +56,7 @@ class OllamaVLM(BaseModelEndpoint):
         self,
         image_path: str,
         prompt: str,
+        schema: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         image_base64 = base64.b64encode(
             Path(image_path).read_bytes()
@@ -67,12 +68,21 @@ class OllamaVLM(BaseModelEndpoint):
                 "content": prompt,
                 "images": [image_base64],
             }],
-            format="json",
+            format=schema or "json",
             options={"temperature": 0},
         )
 
-        content = response["message"]["content"]
-        return json.loads(content)
+        message = response.get("message")
+        content = message.get("content") if isinstance(message, dict) else None
+        if not isinstance(content, str):
+            raise OllamaResponseError("ollama vision response is missing message content")
+
+        try:
+            payload = json.loads(content)
+        except json.JSONDecodeError as exc:
+            raise OllamaResponseError("ollama vision response contains malformed JSON") from exc
+
+        return payload
 import asyncio
 from .base import BaseModelEndpoint
 from pydantic import BaseModel, Field

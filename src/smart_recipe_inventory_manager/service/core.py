@@ -1,10 +1,19 @@
-from ..ollama_client.vlm import OllamaVLM
 from typing import Any
+
+from pydantic import ValidationError
+
+from ..ollama_client.base import OllamaResponseError
 from ..ollama_client.llm import OllamaLLM
 from ..ollama_client.vlm import OllamaVLM
+from .models import GeneratedRecipe, IngredientDetection
 
-def search_recipes(ingredients: list[dict], limit: int = 5) -> list[dict]:
+
+def search_recipes(
+    ingredients: list[dict[str, Any]],
+    limit: int = 5,
+) -> list[dict[str, Any]]:
     return []
+
 
 DETECTION_PROMPT = """
 Analyse cette photo de frigo, placard ou aliments sur une table.
@@ -26,22 +35,32 @@ Réponds strictement avec ce JSON :
 """
 
 
-async def detect_ingredients(image_path: str) -> dict[str, Any]:
-    result = await OllamaVLM().detect_ingredients(
+async def detect_ingredients(
+    image_path: str,
+    vlm: OllamaVLM | None = None,
+) -> dict[str, Any]:
+    adapter = vlm if vlm is not None else OllamaVLM()
+    result = await adapter.detect_ingredients(
         image_path=image_path,
         prompt=DETECTION_PROMPT,
+        schema=IngredientDetection.model_json_schema(),
     )
 
-    ingredients = result.get("ingredients")
-    if not isinstance(ingredients, list):
-        raise ValueError("La réponse VLM doit contenir une liste d'ingrédients.")
+    try:
+        detection = IngredientDetection.model_validate(result)
+    except ValidationError as exc:
+        raise OllamaResponseError(
+            "ollama vision response does not match the ingredient schema"
+        ) from exc
 
-    return {"ingrédients": ingredients}
+    return detection.model_dump(mode="json")
+
 
 async def generate_recipe(
     ingredients: list[dict[str, Any]],
     preferences: str = "",
     recipes: list[dict[str, Any]] | None = None,
+    llm: OllamaLLM | None = None,
 ) -> dict[str, Any]:
     prompt = f"""
 Tu es un assistant spécialisé dans les recettes anti-gaspillage.
@@ -65,18 +84,29 @@ Réponds uniquement avec ce JSON :
 }}
 """
 
-    return await OllamaLLM().generate_json(
-        prompt,
-        max_tokens=700,
-        temperature=0.4,
-    )
+    try:
+        adapter = llm if llm is not None else OllamaLLM()
+        payload = await adapter.generate_json(
+            prompt,
+            schema=GeneratedRecipe.model_json_schema(),
+            max_tokens=700,
+            temperature=0.4,
+        )
+        return GeneratedRecipe.model_validate(payload).model_dump(mode="json")
+    except ValidationError as exc:
+        raise OllamaResponseError(
+            "ollama recipe response does not match the expected schema"
+        ) from exc
+
 
 async def suggest_recipe(
     image_path: str,
     preferences: str = "",
+    vlm: OllamaVLM | None = None,
+    llm: OllamaLLM | None = None,
 ) -> dict[str, Any]:
-    detection = await detect_ingredients(image_path)
-    ingredients = detection["ingrédients"]
+    detection = await detect_ingredients(image_path, vlm=vlm)
+    ingredients = detection["ingredients"]
 
     recipes = search_recipes(ingredients)
 
@@ -84,6 +114,7 @@ async def suggest_recipe(
         ingredients=ingredients,
         preferences=preferences,
         recipes=recipes,
+        llm=llm,
     )
 
     return {

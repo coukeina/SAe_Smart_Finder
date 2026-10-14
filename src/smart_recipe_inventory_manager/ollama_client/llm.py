@@ -3,7 +3,9 @@ import re
 from typing import Any, Mapping, Sequence
 
 from .base import BaseModelEndpoint
+from .base import OllamaResponseError
 from ..config import settings
+
 
 class OllamaLLM(BaseModelEndpoint):
     def __init__(
@@ -76,7 +78,7 @@ class OllamaLLM(BaseModelEndpoint):
         try:
             parsed = json.loads(cleaned)
         except json.JSONDecodeError as exc:
-            raise ValueError("ollama returned malformed JSON") from exc
+            raise OllamaResponseError("ollama returned malformed JSON") from exc
         if not isinstance(parsed, dict):
-            raise ValueError("ollama JSON response must be an object")
+            raise OllamaResponseError("ollama JSON response must be an object")
         return parsed

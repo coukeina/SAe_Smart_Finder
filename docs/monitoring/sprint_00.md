@@ -7,3 +7,11 @@
    * Livrables / DoR & DoD :
       * Module de génération de recettes avec tests unitaires validant la cohérence du format de sortie (JSON typé).
       * Module de gestion d'erreurs avec tests validant un comportement dégradé propre en cas de panne Ollama ou de sortie malformée.
+
+#### Avancement
+
+* [x] Définition de schémas typés pour la détection d'ingrédients et les recettes générées.
+* [x] Contraintes JSON transmises aux adaptateurs VLM et LLM, avec validation des réponses au niveau du service.
+* [x] Tests unitaires couvrant les réponses valides, le JSON malformé et les structures incomplètes.
+* [ ] Retry et gestion testée des indisponibilités, délais dépassés et dépassements de contexte.
+* [ ] Cas de détection vide ou d'ingrédients incompatibles.
