@@ -30,7 +30,7 @@ class OllamaLLM(BaseModelEndpoint):
         payload = {
             "model": self.model,
             "prompt": prompt,
-            "stream": False,
+            "stream": True,
             "options": {
                 "num_predict": max_tokens,
                 "temperature": temperature,
@@ -53,7 +53,7 @@ class OllamaLLM(BaseModelEndpoint):
         payload = {
             "model": self.model,
             "messages": list(messages),
-            "stream": False,
+            "stream": True,
             "options": {
                 "num_predict": max_tokens,
                 "temperature": temperature,

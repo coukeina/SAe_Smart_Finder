@@ -1,63 +1,45 @@
+import json
+from datetime import datetime
+from pathlib import Path
+
 import gradio as gr
 
 from .config import settings
-from .ollama_client.base import (
-	OllamaConnectionError,
-	OllamaContextError,
-	OllamaError,
-	OllamaResponseError,
-)
-from .service.core import RecipeInputError, suggest_recipe
+from .service.core import suggest_recipe
+from .ollama_client.base import OllamaError
+
+
+def save_result(result: dict[str, object]) -> str:
+	output_dir = Path(settings.output_dir)
+	output_dir.mkdir(parents=True, exist_ok=True)
+	path = output_dir / f"recipe_{datetime.now():%Y%m%d_%H%M%S}.json"
+	path.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+	return str(path)
 
 
 async def propose_recipe(
 	image_path: str | None,
 	user_preferences: str | None,
-) -> tuple[list[list[object]], dict[str, object]]:
+) -> tuple[list[list[object]], str | None, str]:
 	if not image_path:
-		return [], {"error": "Aucune image sélectionnée."}
+		return [], None, "Aucune image sélectionnée."
 
 	try:
 		result = await suggest_recipe(
 			image_path=image_path,
 			preferences=user_preferences or "",
 		)
-	except OllamaContextError:
-		return [], {
-			"error": (
-				"La photo contient trop d'informations pour être analysée. "
-				"Essayez une photo plus rapprochée."
-			)
-		}
-	except OllamaConnectionError:
-		return [], {
-			"error": (
-				"Le service Ollama est inaccessible. "
-				"Vérifiez qu'il est démarré, puis réessayez."
-			)
-		}
-	except OllamaResponseError:
-		return [], {
-			"error": (
-				"Le modèle n'a pas renvoyé une réponse exploitable. "
-				"Réessayez avec une autre photo."
-			)
-		}
-	except OllamaError as error:
-		return [], {"error": f"Une erreur Ollama est survenue : {error}"}
-	except RecipeInputError as error:
-		return [], {"error": str(error)}
+	except (OllamaError, ValueError) as error:
+		return [], None, f"Erreur : {error}"
 	ingredients = result.get("ingredients", [])
 	ingredient_rows = [
 		[item.get("name"), item.get("quantity"), item.get("maturity")]
 		for item in ingredients
 		if isinstance(item, dict)
 	]
-	recipe = result.get("recipe", {})
-	if not isinstance(recipe, dict):
-		recipe = {"error": "La recette générée a un format invalide."}
+	path = save_result(result)
 
-	return ingredient_rows, recipe
+	return ingredient_rows, path, f"Résultat enregistré : {path}"
 
 
 def build_demo() -> gr.Blocks:
@@ -85,12 +67,13 @@ def build_demo() -> gr.Blocks:
 				headers=["Aliment", "Quantité", "Maturité"],
 				label="Ingrédients détectés",
 			)
-			recipe_output = gr.JSON(label="Recette proposée")
+			file_output = gr.File(label="Fichier JSON généré")
+		status_output = gr.Markdown()
 
 		generate_button.click(
 			fn=propose_recipe,
 			inputs=[image_input, preferences_input],
-			outputs=[ingredients_output, recipe_output],
+			outputs=[ingredients_output, file_output, status_output],
 		)
 	return demo
 

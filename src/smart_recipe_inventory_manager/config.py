@@ -23,6 +23,7 @@ class Settings(BaseSettings):
 	gradio_port: int = Field(default=7860, alias="GRADIO_PORT")
 	database_url: str | None = Field(default=None, alias="DATABASE_URL")
 	vector_db_path: str = Field(default="/app/data/vector_store", alias="VECTOR_DB_PATH")
+	output_dir: str = Field(default="data/outputs", alias="OUTPUT_DIR")
 
 
 @lru_cache

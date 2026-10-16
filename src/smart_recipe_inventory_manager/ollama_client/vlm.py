@@ -1,11 +1,10 @@
-import asyncio
 import base64
 import json
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
 from ..config import settings
-from .base import BaseModelEndpoint, OllamaResponseError, RETRY_DELAY_SECONDS
+from .base import BaseModelEndpoint
 
 
 class OllamaVLM(BaseModelEndpoint):
@@ -25,7 +24,7 @@ class OllamaVLM(BaseModelEndpoint):
         payload = {
             "model": self.model,
             "prompt": prompt,
-            "stream": False,
+            "stream": True,
         }
         payload.update(kwargs)
         response = await self._post("/api/generate", payload)
@@ -44,7 +43,7 @@ class OllamaVLM(BaseModelEndpoint):
         payload = {
             "model": self.model,
             "messages": list(messages),
-            "stream": False,
+            "stream": True,
             "options": {
                 "num_predict": max_tokens,
                 "temperature": temperature,
@@ -57,70 +56,20 @@ class OllamaVLM(BaseModelEndpoint):
         self,
         image_path: str,
         prompt: str,
-        schema: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         image_base64 = base64.b64encode(
             Path(image_path).read_bytes()
         ).decode("utf-8")
 
-        for attempt in range(2):
-            response = await self.chat(
-                [{
-                    "role": "user",
-                    "content": prompt,
-                    "images": [image_base64],
-                }],
-                format=schema or "json",
-                options={"temperature": 0},
-            )
+        response = await self.chat(
+            [{
+                "role": "user",
+                "content": prompt,
+                "images": [image_base64],
+            }],
+            format="json",
+            options={"temperature": 0},
+        )
 
-            message = response.get("message")
-            content = message.get("content") if isinstance(message, dict) else None
-            if not isinstance(content, str):
-                if attempt == 0:
-                    await asyncio.sleep(RETRY_DELAY_SECONDS)
-                    continue
-                raise OllamaResponseError(
-                    "ollama vision response is missing message content"
-                )
-
-            try:
-                payload = json.loads(content)
-            except json.JSONDecodeError as exc:
-                if attempt == 0:
-                    await asyncio.sleep(RETRY_DELAY_SECONDS)
-                    continue
-                raise OllamaResponseError(
-                    "ollama vision response contains malformed JSON"
-                ) from exc
-
-            if not isinstance(payload, dict):
-                raise OllamaResponseError(
-                    "ollama vision JSON response must be an object"
-                )
-            return payload
-
-        raise OllamaResponseError("ollama vision response remained malformed after retry")
-import asyncio
-from .base import BaseModelEndpoint
-from pydantic import BaseModel, Field
-from typing import Any, Dict
-
-class OllamaLLM(BaseModelEndpoint):
-    model: str
-    host: str = "http://localhost:11434"
-
-    async def generate(self, prompt: str, max_tokens: int = 256,
-                       temperature: float = 0.7, **kw) -> str:
-        payload = {
-            "model": self.model,
-            "prompt": prompt,
-            "max_tokens": max_tokens,
-            "temperature": temperature,
-            "stream": False,
-        }
-        payload.update(kw)
-        resp = await self._post("/api/chat", payload)
-        return resp["response"]
-
-    # _post() is a private helper that does aiohttp request...
+        content = response["message"]["content"]
+        return json.loads(content)
