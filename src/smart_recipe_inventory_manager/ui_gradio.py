@@ -9,20 +9,20 @@ from .service.core import suggest_recipe
 from .ollama_client.base import OllamaError
 
 
-def save_result(result: dict[str, object]) -> str:
+def save_result(result: dict[str, object]) -> Path:
 	output_dir = Path(settings.output_dir)
 	output_dir.mkdir(parents=True, exist_ok=True)
 	path = output_dir / f"recipe_{datetime.now():%Y%m%d_%H%M%S}.json"
 	path.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
-	return str(path)
+	return path
 
 
 async def propose_recipe(
 	image_path: str | None,
 	user_preferences: str | None,
-) -> tuple[list[list[object]], str | None, str]:
+) -> list[list[object]]:
 	if not image_path:
-		return [], None, "Aucune image sélectionnée."
+		raise gr.Error("Aucune image sélectionnée.")
 
 	try:
 		result = await suggest_recipe(
@@ -30,16 +30,14 @@ async def propose_recipe(
 			preferences=user_preferences or "",
 		)
 	except (OllamaError, ValueError) as error:
-		return [], None, f"Erreur : {error}"
-	ingredients = result.get("ingredients", [])
-	ingredient_rows = [
+		raise gr.Error(f"Erreur : {error}") from error
+
+	save_result(result)
+	return [
 		[item.get("name"), item.get("quantity"), item.get("maturity")]
-		for item in ingredients
+		for item in result.get("ingredients", [])
 		if isinstance(item, dict)
 	]
-	path = save_result(result)
-
-	return ingredient_rows, path, f"Résultat enregistré : {path}"
 
 
 def build_demo() -> gr.Blocks:
@@ -62,18 +60,15 @@ def build_demo() -> gr.Blocks:
 			)
 
 		generate_button = gr.Button("Proposer une recette")
-		with gr.Row():
-			ingredients_output = gr.Dataframe(
-				headers=["Aliment", "Quantité", "Maturité"],
-				label="Ingrédients détectés",
-			)
-			file_output = gr.File(label="Fichier JSON généré")
-		status_output = gr.Markdown()
+		ingredients_output = gr.Dataframe(
+			headers=["Aliment", "Quantité", "Maturité"],
+			label="Ingrédients détectés",
+		)
 
 		generate_button.click(
 			fn=propose_recipe,
 			inputs=[image_input, preferences_input],
-			outputs=[ingredients_output, file_output, status_output],
+			outputs=ingredients_output,
 		)
 	return demo
 
