@@ -11,6 +11,7 @@ import httpx
 
 logger = logging.getLogger(__name__)
 
+RETRY_DELAY_SECONDS = 1.0
 
 class OllamaError(RuntimeError):
     """Base error raised by the local Ollama adapter."""
