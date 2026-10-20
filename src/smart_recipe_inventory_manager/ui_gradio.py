@@ -20,7 +20,7 @@ def save_result(result: dict[str, object]) -> Path:
 async def propose_recipe(
 	image_path: str | None,
 	user_preferences: str | None,
-) -> list[list[object]]:
+) -> tuple[list[list[object]], str]:
 	if not image_path:
 		raise gr.Error("Aucune image sélectionnée.")
 
@@ -33,11 +33,34 @@ async def propose_recipe(
 		raise gr.Error(f"Erreur : {error}") from error
 
 	save_result(result)
-	return [
+	ingredient_rows = [
 		[item.get("name"), item.get("quantity"), item.get("maturity")]
 		for item in result.get("ingredients", [])
 		if isinstance(item, dict)
 	]
+	recipe = result.get("recipe", {})
+	if not isinstance(recipe, dict):
+		raise gr.Error("La recette générée a un format invalide.")
+
+	title = str(recipe.get("title") or "Recette proposée")
+	recipe_text = f"## {title}\n"
+	cooking_time = recipe.get("cooking_time")
+	if cooking_time:
+		recipe_text += f"\n**Temps de préparation :** {cooking_time}\n"
+
+	recipe_ingredients = recipe.get("ingredients", [])
+	if isinstance(recipe_ingredients, list) and recipe_ingredients:
+		recipe_text += "\n### Ingrédients\n" + "\n".join(
+			f"- {ingredient}" for ingredient in recipe_ingredients
+		)
+
+	steps = recipe.get("steps", [])
+	if isinstance(steps, list) and steps:
+		recipe_text += "\n\n### Préparation\n" + "\n".join(
+			f"{index}. {step}" for index, step in enumerate(steps, start=1)
+		)
+
+	return ingredient_rows, recipe_text
 
 
 def build_demo() -> gr.Blocks:
@@ -64,11 +87,13 @@ def build_demo() -> gr.Blocks:
 			headers=["Aliment", "Quantité", "Maturité"],
 			label="Ingrédients détectés",
 		)
+		gr.Markdown("## Recette(s) proposée(s)")
+		recipe_output = gr.Markdown("La recette apparaîtra ici après l'analyse.")
 
 		generate_button.click(
 			fn=propose_recipe,
 			inputs=[image_input, preferences_input],
-			outputs=ingredients_output,
+			outputs=[ingredients_output, recipe_output],
 		)
 	return demo
 
