@@ -3,13 +3,14 @@ from typing import Annotated
 from pydantic import BaseModel, ConfigDict, Field
 
 NonEmptyString = Annotated[str, Field(min_length=1)]
+NonNegativeQuantity = Annotated[float, Field(ge=0, allow_inf_nan=False)]
 
 
 class DetectedIngredient(BaseModel):
 	model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
 	name: NonEmptyString
-	quantity: float | None = None
+	quantity: NonNegativeQuantity | None = None
 	maturity: str | None = None
 
 

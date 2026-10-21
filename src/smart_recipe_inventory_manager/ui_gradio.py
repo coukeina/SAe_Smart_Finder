@@ -8,6 +8,12 @@ from .ollama_client.base import (
     OllamaResponseError,
 )
 from .service.core import RecipeInputError, suggest_recipe
+from .service.inventory import (
+    InventoryInputError,
+    get_inventory,
+    save_confirmed_inventory,
+)
+from .storage.inventory_repository import InventoryRepositoryError
 from .storage.recipe_repository import RecipeRepositoryError
 
 
@@ -83,6 +89,42 @@ async def propose_recipe(
     return ingredient_rows, _format_recipe(recipe)
 
 
+def _inventory_rows(inventory: list[dict[str, object]]) -> list[list[object]]:
+    return [
+        [
+            item.get("name"),
+            item.get("quantity"),
+            item.get("unit"),
+            item.get("maturity"),
+            item.get("confidence"),
+            not item.get("needs_confirmation", True),
+        ]
+        for item in inventory
+    ]
+
+
+def confirm_inventory(
+    ingredient_rows: list[list[object]] | None,
+) -> tuple[list[list[object]], str]:
+    try:
+        inventory = save_confirmed_inventory(ingredient_rows)
+    except InventoryInputError as error:
+        return [], str(error)
+    except InventoryRepositoryError as error:
+        return [], str(error)
+
+    rows = _inventory_rows(inventory)
+    return rows, f"Inventaire confirmé : {len(rows)} ingrédient(s) enregistré(s)."
+
+
+def refresh_inventory() -> tuple[list[list[object]], str]:
+    try:
+        rows = _inventory_rows(get_inventory())
+    except InventoryRepositoryError as error:
+        return [], str(error)
+    return rows, f"{len(rows)} ingrédient(s) dans l'inventaire."
+
+
 def build_demo() -> gr.Blocks:
     """Build the recipe suggestion interface."""
     with gr.Blocks(title="Smart Recipe") as demo:
@@ -107,15 +149,46 @@ def build_demo() -> gr.Blocks:
             ingredients_output = gr.Dataframe(
                 headers=["Aliment", "Quantité", "Maturité"],
                 label="Ingrédients détectés",
+                type="array",
+                interactive=True,
             )
             recipe_output = gr.Markdown(
                 "La recette apparaîtra ici après l'analyse."
             )
 
+        gr.Markdown(
+            "Vérifiez et corrigez les ingrédients détectés dans le tableau avant "
+            "de les enregistrer dans l'inventaire."
+        )
+        confirm_button = gr.Button("Confirmer et enregistrer l'inventaire")
+        inventory_output = gr.Dataframe(
+            headers=[
+                "Aliment",
+                "Quantité",
+                "Unité",
+                "Maturité",
+                "Confiance",
+                "Confirmé",
+            ],
+            label="Inventaire enregistré",
+            type="array",
+            interactive=False,
+        )
+        inventory_status = gr.Markdown()
+
         generate_button.click(
             fn=propose_recipe,
             inputs=[image_input, preferences_input],
             outputs=[ingredients_output, recipe_output],
+        )
+        confirm_button.click(
+            fn=confirm_inventory,
+            inputs=[ingredients_output],
+            outputs=[inventory_output, inventory_status],
+        )
+        demo.load(
+            fn=refresh_inventory,
+            outputs=[inventory_output, inventory_status],
         )
     return demo
 

@@ -108,6 +108,15 @@ ingrédients de la recette retrouvés dans la photo, puis transmis au LLM comme
 pistes à adapter. La réponse finale reste limitée aux ingrédients détectés.
 Une indisponibilité de la base est signalée dans l'interface.
 
+## Confirmer et suivre l'inventaire
+
+Après l'analyse de la photo, les ingrédients apparaissent dans un tableau
+modifiable. Vérifiez les noms, quantités et maturités, puis utilisez
+« Confirmer et enregistrer l'inventaire ». Les lignes sont validées avant
+l'écriture ; un ingrédient déjà présent met à jour son stock courant au lieu de
+créer un doublon. L'inventaire enregistré est rechargé à l'ouverture de
+l'application et les erreurs de stockage sont affichées dans l'interface.
+
 ### Vérifier les tests
 
 Depuis le dossier `SAe_Smart_Finder`, sous PowerShell :
@@ -180,7 +189,7 @@ Le fichier [`database/init.sql`](database/init.sql) crée le schéma PostgreSQL 
 - `recipes` : recettes et étapes de préparation au format JSON
 - `ingredients` : ingrédients avec leur nom normalisé
 - `recipe_ingredients` : association entre recettes et ingrédients
-- `inventory` : ingrédients détectés dans l'inventaire, quantités, maturité et confiance
+- `inventory` : stock courant par ingrédient, quantités, maturité, confiance et état de confirmation
 - `recipe_embeddings` : contenu des recettes et vecteurs de dimension 768
 
 L'extension `vector` doit être activée avant la création de la table `recipe_embeddings`. Le script d'initialisation est idempotent grâce à `CREATE TABLE IF NOT EXISTS` et peut être rejoué sans recréer les tables existantes.

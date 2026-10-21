@@ -82,12 +82,8 @@ def import_recipes(file_path: str = "data/recipes.json") -> int:
 
 					cursor.execute(
 						"""
-						INSERT INTO ingredients (id, name, normalized_name)
-						VALUES (
-							(SELECT COALESCE(MAX(id), 0) + 1 FROM ingredients),
-							%s,
-							%s
-						)
+						INSERT INTO ingredients (name, normalized_name)
+						VALUES (%s, %s)
 						ON CONFLICT (normalized_name) DO UPDATE SET name = EXCLUDED.name
 						RETURNING id
 						""",
