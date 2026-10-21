@@ -7,6 +7,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import httpx
 import psycopg
+
 from smart_recipe_inventory_manager.config import Settings
 from smart_recipe_inventory_manager.ollama_client.base import (
 	BaseModelEndpoint,
@@ -14,6 +15,7 @@ from smart_recipe_inventory_manager.ollama_client.base import (
 	OllamaContextError,
 	OllamaResponseError,
 )
+from smart_recipe_inventory_manager.ollama_client.embedding import OllamaEmbedding
 from smart_recipe_inventory_manager.ollama_client.llm import OllamaLLM
 from smart_recipe_inventory_manager.ollama_client.vlm import OllamaVLM
 from smart_recipe_inventory_manager.service.core import (
@@ -24,6 +26,7 @@ from smart_recipe_inventory_manager.service.core import (
 )
 from smart_recipe_inventory_manager.storage.recipe_repository import (
 	RecipeRepositoryError,
+	recipe_embedding_text,
 	search_recipes,
 )
 from smart_recipe_inventory_manager.ui_gradio import propose_recipe
@@ -67,6 +70,16 @@ class StubEndpoint(BaseModelEndpoint):
 		**kwargs: Any,
 	) -> dict[str, Any]:
 		raise NotImplementedError
+
+
+class StubEmbedding(OllamaEmbedding):
+	def __init__(self, vectors: list[list[float]]) -> None:
+		self.vectors = vectors
+		self.inputs: str | list[str] | None = None
+
+	async def embed(self, inputs: str | list[str]) -> list[list[float]]:
+		self.inputs = inputs
+		return self.vectors
 
 
 class StubVLM(OllamaVLM):
@@ -138,6 +151,34 @@ class OllamaRetryTests(unittest.IsolatedAsyncioTestCase):
 
 		self.assertEqual(result["response"], "hello")
 		self.assertEqual(result["eval_count"], 2)
+
+	async def test_request_metrics_include_latency_and_generation_rate(self) -> None:
+		transport = httpx.MockTransport(
+			lambda request: httpx.Response(
+				200,
+				json={
+					"response": "ok",
+					"eval_count": 10,
+					"eval_duration": 2_000_000_000,
+				},
+			)
+		)
+		real_client = httpx.AsyncClient
+
+		def client_factory(**kwargs: Any) -> httpx.AsyncClient:
+			return real_client(transport=transport, **kwargs)
+
+		endpoint = StubEndpoint("test-model", "http://ollama", 1)
+		with patch(
+			"smart_recipe_inventory_manager.ollama_client.base.httpx.AsyncClient",
+			side_effect=client_factory,
+		):
+			await endpoint._post("/api/generate", {})
+
+		self.assertIsNotNone(endpoint.last_request_metrics)
+		self.assertEqual(endpoint.last_request_metrics.generated_tokens, 10)
+		self.assertEqual(endpoint.last_request_metrics.tokens_per_second, 5.0)
+		self.assertGreaterEqual(endpoint.last_request_metrics.latency_ms, 0)
 
 	async def test_context_error_in_stream_is_not_retried(self) -> None:
 		request_count = 0
@@ -314,20 +355,29 @@ class RecipeRepositoryTests(unittest.TestCase):
 			"smart_recipe_inventory_manager.storage.recipe_repository.get_connection",
 			return_value=connection,
 		):
-			result = search_recipes([{"name": " TOMATEs "}], limit=3)
+			vector = [0.1] * 768
+			result = search_recipes(
+				[{"name": " TOMATEs "}],
+				vector,
+				limit=3,
+			)
 
 		self.assertEqual(result, expected)
 		query, parameters = cursor.execute.call_args.args
+		self.assertIn("embedding <=> query_embedding.embedding", query)
 		self.assertIn("ORDER BY coverage DESC", query)
-		self.assertEqual(parameters, (["tomate", "tomates"], 3))
+		self.assertEqual(parameters[0], ["tomate", "tomates"])
+		self.assertEqual(parameters[1], "[" + ",".join(["0.10000000000000001"] * 768) + "]")
+		self.assertEqual(parameters[2:], (100, 3))
 
 	def test_search_skips_database_for_empty_or_invalid_ingredients(self) -> None:
 		with patch(
 			"smart_recipe_inventory_manager.storage.recipe_repository.get_connection"
 		) as get_connection:
-			self.assertEqual(search_recipes([], limit=5), [])
-			self.assertEqual(search_recipes([{"name": " "}], limit=5), [])
-			self.assertEqual(search_recipes([{"name": "tomate"}], limit=0), [])
+			vector = [0.1] * 768
+			self.assertEqual(search_recipes([], vector, limit=5), [])
+			self.assertEqual(search_recipes([{"name": " "}], vector, limit=5), [])
+			self.assertEqual(search_recipes([{"name": "tomate"}], vector, limit=0), [])
 
 		get_connection.assert_not_called()
 
@@ -339,7 +389,24 @@ class RecipeRepositoryTests(unittest.TestCase):
 			),
 			self.assertRaises(RecipeRepositoryError),
 		):
-			search_recipes([{"name": "tomate"}])
+			search_recipes([{"name": "tomate"}], [0.1] * 768)
+
+	def test_search_rejects_embeddings_with_wrong_dimensions(self) -> None:
+		with self.assertRaises(RecipeRepositoryError):
+			search_recipes([{"name": "tomate"}], [0.1])
+
+	def test_recipe_embedding_text_combines_recipe_fields(self) -> None:
+		content = recipe_embedding_text({
+			"title": "Soupe",
+			"description": "Une soupe simple",
+			"ingredients": [{"name": "tomate"}, {"name": "oignon"}],
+			"steps": ["Couper.", "Cuire."],
+		})
+
+		self.assertEqual(
+			content,
+			"Soupe\nUne soupe simple\ntomate\noignon\nCouper.\nCuire.",
+		)
 
 
 class GradioFlowTests(unittest.IsolatedAsyncioTestCase):
@@ -379,6 +446,13 @@ class GradioFlowTests(unittest.IsolatedAsyncioTestCase):
 				"steps": ["Cuire."],
 				"cooking_time": "20 minutes",
 			},
+			"metrics": {
+				"vision_latency_ms": 125.5,
+				"generation_latency_ms": 250.0,
+				"generated_tokens": 42,
+				"tokens_per_second": 21.0,
+				"recipe_cosine_similarity": 0.876543210123,
+			},
 		}
 		with patch(
 			"smart_recipe_inventory_manager.ui_gradio.suggest_recipe",
@@ -391,6 +465,9 @@ class GradioFlowTests(unittest.IsolatedAsyncioTestCase):
 		self.assertIn("20 minutes", recipe)
 		self.assertIn("- tomate", recipe)
 		self.assertIn("1. Cuire.", recipe)
+		self.assertIn("125.50 ms", recipe)
+		self.assertIn("42", recipe)
+		self.assertIn("0.876543210123", recipe)
 		suggest.assert_awaited_once_with(
 			image_path="fridge.jpg",
 			preferences="rapide",
@@ -426,13 +503,18 @@ class GradioFlowTests(unittest.IsolatedAsyncioTestCase):
 class LevelOneContractTests(unittest.IsolatedAsyncioTestCase):
 	async def test_suggest_recipe_uses_database_candidates(self) -> None:
 		ingredients = [{"name": "tomate", "quantity": 2, "maturity": None}]
-		candidates = [{"title": "Soupe de tomates", "coverage": 1.0}]
+		candidates = [{
+			"title": "Soupe de tomates",
+			"coverage": 1.0,
+			"cosine_similarity": 0.876543210123,
+		}]
 		llm = StubLLM({
 			"title": "Soupe",
 			"ingredients": ["tomate"],
 			"steps": ["Cuire."],
 			"cooking_time": "20 minutes",
 		})
+		embedding = StubEmbedding([[0.1] * 768])
 		with patch(
 			"smart_recipe_inventory_manager.service.core.search_recipes",
 			return_value=candidates,
@@ -441,11 +523,16 @@ class LevelOneContractTests(unittest.IsolatedAsyncioTestCase):
 				image_path="unused.jpg",
 				vlm=StubDetectionVLM(ingredients),
 				llm=llm,
+				embedding_client=embedding,
 			)
 
-		search.assert_called_once_with(ingredients)
+		search.assert_called_once_with(ingredients, [0.1] * 768)
 		self.assertEqual(result["recipe"]["title"], "Soupe")
 		self.assertIn("Soupe de tomates", llm.prompt)
+		self.assertEqual(
+			result["metrics"]["recipe_cosine_similarity"],
+			0.876543210123,
+		)
 
 	async def test_level_one_scenario_dataset(self) -> None:
 		scenarios = json.loads(

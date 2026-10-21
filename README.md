@@ -62,7 +62,17 @@ Get-Content database/init.sql | docker compose exec -T pg psql -U app_user -d ap
 docker compose exec app python scripts/import_recipes.py
 ```
 
-6. Pour arrêter les services :
+6. Télécharger le modèle d'embedding et indexer les recettes importées :
+
+```bash
+docker compose exec ollama ollama pull embeddinggemma
+docker compose exec app python scripts/index_recipe_embeddings.py
+```
+
+Relancer l'indexation après chaque nouvel import ou modification des recettes.
+Le script traite les recettes par lots et met à jour les embeddings existants.
+
+7. Pour arrêter les services :
 
 ```bash
 docker compose down
@@ -103,10 +113,14 @@ docker compose exec ollama ollama pull qwen3-vl:instruct
 ```
 
 Avant la génération, le service recherche jusqu'à cinq recettes dans PostgreSQL
-à partir des ingrédients détectés. Les résultats sont classés selon la part des
-ingrédients de la recette retrouvés dans la photo, puis transmis au LLM comme
+à partir d'un embedding des ingrédients détectés. Les recettes sont indexées
+avec le modèle `embeddinggemma` dans `recipe_embeddings`, puis recherchées avec
+la distance cosine de pgvector. Les candidats sont classés par couverture des
+ingrédients disponibles, puis par similarité cosine, et transmis au LLM comme
 pistes à adapter. La réponse finale reste limitée aux ingrédients détectés.
-Une indisponibilité de la base est signalée dans l'interface.
+L'interface affiche les latences VLM/LLM, le nombre de tokens générés, le débit
+de génération et le score cosine brut du meilleur résultat. Une indisponibilité
+de la base ou du modèle d'embedding est signalée dans l'interface.
 
 ## Confirmer et suivre l'inventaire
 

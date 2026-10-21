@@ -1,3 +1,4 @@
+import asyncio
 import re
 import unicodedata
 from typing import Any
@@ -5,6 +6,7 @@ from typing import Any
 from pydantic import ValidationError
 
 from ..ollama_client.base import OllamaResponseError
+from ..ollama_client.embedding import OllamaEmbedding
 from ..ollama_client.llm import OllamaLLM
 from ..ollama_client.vlm import OllamaVLM
 from ..storage.recipe_repository import search_recipes
@@ -147,8 +149,10 @@ async def suggest_recipe(
     preferences: str = "",
     vlm: OllamaVLM | None = None,
     llm: OllamaLLM | None = None,
+    embedding_client: OllamaEmbedding | None = None,
 ) -> dict[str, Any]:
-    detection = await detect_ingredients(image_path, vlm=vlm)
+    vision_adapter = vlm if vlm is not None else OllamaVLM()
+    detection = await detect_ingredients(image_path, vlm=vision_adapter)
     ingredients = detection["ingredients"]
     if not ingredients:
         raise RecipeInputError(
@@ -156,15 +160,46 @@ async def suggest_recipe(
             "Essayez une photo plus nette et mieux éclairée."
         )
 
-    recipes = search_recipes(ingredients)
+    embedding_adapter = (
+        embedding_client if embedding_client is not None else OllamaEmbedding()
+    )
+    query_text = "\n".join(item["name"] for item in ingredients)
+    query_embeddings = await embedding_adapter.embed(query_text)
+    if len(query_embeddings) != 1:
+        raise OllamaResponseError(
+            "ollama embedding response did not contain one query vector"
+        )
+    recipes = await asyncio.to_thread(
+        search_recipes,
+        ingredients,
+        query_embeddings[0],
+    )
+    llm_adapter = llm if llm is not None else OllamaLLM()
     recipe = await generate_recipe(
         ingredients=ingredients,
         preferences=preferences,
         recipes=recipes,
-        llm=llm,
+        llm=llm_adapter,
     )
+    vision_metrics = getattr(vision_adapter, "last_request_metrics", None)
+    generation_metrics = getattr(llm_adapter, "last_request_metrics", None)
 
     return {
         "ingredients": ingredients,
         "recipe": recipe,
+        "metrics": {
+            "vision_latency_ms": getattr(vision_metrics, "latency_ms", None),
+            "generation_latency_ms": getattr(
+                generation_metrics, "latency_ms", None
+            ),
+            "generated_tokens": getattr(
+                generation_metrics, "generated_tokens", None
+            ),
+            "tokens_per_second": getattr(
+                generation_metrics, "tokens_per_second", None
+            ),
+            "recipe_cosine_similarity": (
+                recipes[0]["cosine_similarity"] if recipes else None
+            ),
+        },
     }

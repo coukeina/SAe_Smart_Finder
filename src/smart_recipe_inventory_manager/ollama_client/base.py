@@ -3,9 +3,11 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import math
 import time
 from abc import ABC, abstractmethod
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from typing import Any
 
 import httpx
@@ -14,6 +16,13 @@ logger = logging.getLogger(__name__)
 
 MAX_REQUEST_ATTEMPTS = 3
 RETRY_DELAY_SECONDS = 0.25
+
+
+@dataclass(frozen=True)
+class OllamaRequestMetrics:
+    latency_ms: float
+    generated_tokens: int | None
+    tokens_per_second: float | None
 
 
 def _is_context_limit_message(message: str) -> bool:
@@ -57,6 +66,7 @@ class BaseModelEndpoint(ABC):
         self.model = model
         self.host = host.rstrip("/")
         self.timeout = timeout
+        self.last_request_metrics: OllamaRequestMetrics | None = None
 
     async def _post(self, path: str, payload: Mapping[str, Any]) -> dict[str, Any]:
         timeout = httpx.Timeout(self.timeout, connect=10.0)
@@ -130,10 +140,37 @@ class BaseModelEndpoint(ABC):
                 self._log_request(path, started_at, error="invalid_payload")
                 raise OllamaResponseError("ollama returned an unexpected payload")
 
+            generated_tokens = data.get("eval_count")
+            eval_duration = data.get("eval_duration")
+            token_count = (
+                int(generated_tokens)
+                if isinstance(generated_tokens, (int, float))
+                and not isinstance(generated_tokens, bool)
+                and generated_tokens >= 0
+                else None
+            )
+            tokens_per_second = None
+            if (
+                token_count is not None
+                and isinstance(eval_duration, (int, float))
+                and not isinstance(eval_duration, bool)
+                and eval_duration > 0
+            ):
+                tokens_per_second = token_count * 1_000_000_000 / eval_duration
+                if not math.isfinite(tokens_per_second):
+                    tokens_per_second = None
+
+            latency_ms = round((time.perf_counter() - started_at) * 1000, 2)
+            self.last_request_metrics = OllamaRequestMetrics(
+                latency_ms=latency_ms,
+                generated_tokens=token_count,
+                tokens_per_second=tokens_per_second,
+            )
             self._log_request(
                 path,
                 started_at,
-                token_count=data.get("eval_count") or data.get("prompt_eval_count"),
+                token_count=token_count,
+                tokens_per_second=tokens_per_second,
             )
             return data
 
@@ -192,6 +229,7 @@ class BaseModelEndpoint(ABC):
         path: str,
         started_at: float,
         token_count: Any = None,
+        tokens_per_second: float | None = None,
         error: str | None = None,
     ) -> None:
         logger.info(
@@ -201,6 +239,7 @@ class BaseModelEndpoint(ABC):
                     "endpoint": path,
                     "latency_ms": round((time.perf_counter() - started_at) * 1000, 2),
                     "token_count": token_count,
+                    "tokens_per_second": tokens_per_second,
                     "error": error,
                 },
                 ensure_ascii=True,

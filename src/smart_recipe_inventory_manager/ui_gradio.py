@@ -40,6 +40,33 @@ def _format_recipe(recipe: dict[str, object]) -> str:
     return recipe_text
 
 
+def _format_metrics(metrics: dict[str, object]) -> str:
+    labels = (
+        ("vision_latency_ms", "Latence VLM"),
+        ("generation_latency_ms", "Latence LLM"),
+        ("generated_tokens", "Tokens générés"),
+        ("tokens_per_second", "Débit de génération"),
+        ("recipe_cosine_similarity", "Score cosine brut"),
+    )
+    lines = []
+    for key, label in labels:
+        value = metrics.get(key)
+        if isinstance(value, (int, float)) and not isinstance(value, bool):
+            if key == "recipe_cosine_similarity":
+                formatted = repr(value)
+            elif key == "generated_tokens":
+                formatted = str(int(value))
+            else:
+                formatted = f"{value:.2f}"
+            unit = "" if key in {"generated_tokens", "recipe_cosine_similarity"} else " ms"
+            if key == "tokens_per_second":
+                unit = " tokens/s"
+            lines.append(f"- **{label} :** {formatted}{unit}")
+        else:
+            lines.append(f"- **{label} :** non disponible")
+    return "\n".join(lines)
+
+
 async def propose_recipe(
     image_path: str | None,
     user_preferences: str | None,
@@ -86,7 +113,11 @@ async def propose_recipe(
     if not isinstance(recipe, dict):
         return ingredient_rows, "La recette générée a un format invalide."
 
-    return ingredient_rows, _format_recipe(recipe)
+    message = _format_recipe(recipe)
+    metrics = result.get("metrics")
+    if isinstance(metrics, dict):
+        message += "\n\n### Métriques\n" + _format_metrics(metrics)
+    return ingredient_rows, message
 
 
 def _inventory_rows(inventory: list[dict[str, object]]) -> list[list[object]]:

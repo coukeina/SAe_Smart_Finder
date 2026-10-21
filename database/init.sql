@@ -64,3 +64,6 @@ CREATE TABLE IF NOT EXISTS recipe_embeddings (
     embedding VECTOR(768),
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
+
+CREATE INDEX IF NOT EXISTS recipe_embeddings_embedding_idx
+    ON recipe_embeddings USING hnsw (embedding vector_cosine_ops);

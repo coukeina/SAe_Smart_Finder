@@ -3,6 +3,7 @@ from typing import Any
 from unittest.mock import MagicMock, patch
 
 import psycopg
+
 from smart_recipe_inventory_manager.service.inventory import (
 	InventoryInputError,
 	save_confirmed_inventory,
