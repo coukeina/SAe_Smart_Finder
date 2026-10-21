@@ -31,48 +31,55 @@ Application web destinée à réduire le gaspillage alimentaire en analysant le 
 1. Cloner le dépôt :
 
 ```bash
-git clone https://github.com/coukeina/SA--Smart-recipe-and-inventory-manager--Anti-Gaspillage/
-cd SA--Smart-recipe-and-inventory-manager--Anti-Gaspillage
+git clone https://github.com/coukeina/SAe_Smart_Finder.git
+cd SAe_Smart_Finder
 ```
 
 2. Lancer les services avec Docker :
 
 ```bash
-docker compose up --build
+docker compose up --build -d
 ```
 
-3. Ouvrir l'application dans le navigateur :
+3. Télécharger les modèles nécessaires :
+
+```bash
+docker compose exec ollama ollama pull gemma4:12b
+docker compose exec ollama ollama pull qwen3-vl:instruct
+docker compose exec ollama ollama pull embeddinggemma
+```
+
+4. Ouvrir l'application dans le navigateur :
 
 ```text
 http://localhost:7860
 ```
 
-4. Le schéma PostgreSQL est initialisé automatiquement lorsque le volume de la
+5. Le schéma PostgreSQL est initialisé automatiquement lorsque le volume de la
    base est créé pour la première fois. Pour un volume déjà existant, rejouer
-   le schéma manuellement :
+   le schéma manuellement depuis PowerShell :
 
-```bash
+```powershell
 docker compose exec -T pg psql -U app_user -d app_db -c "CREATE EXTENSION IF NOT EXISTS vector;"
 Get-Content database/init.sql | docker compose exec -T pg psql -U app_user -d app_db
 ```
 
-5. Importer le jeu de recettes dans PostgreSQL :
+6. Importer le jeu de recettes dans PostgreSQL :
 
 ```bash
 docker compose exec app python scripts/import_recipes.py
 ```
 
-6. Télécharger le modèle d'embedding et indexer les recettes importées :
+7. Indexer les recettes importées pour activer la recherche sémantique :
 
 ```bash
-docker compose exec ollama ollama pull embeddinggemma
 docker compose exec app python scripts/index_recipe_embeddings.py
 ```
 
 Relancer l'indexation après chaque nouvel import ou modification des recettes.
 Le script traite les recettes par lots et met à jour les embeddings existants.
 
-7. Pour arrêter les services :
+8. Pour arrêter les services :
 
 ```bash
 docker compose down
@@ -104,13 +111,8 @@ alors une photo plus ciblée.
 
 Les modèles sont configurables avec `LLM_MODEL` et `VLM_MODEL`. Les valeurs par
 défaut du dépôt sont `gemma4:12b` et `qwen3-vl:instruct`. Elles peuvent être remplacées
-dans l'environnement de Docker Compose. Après le démarrage d'Ollama, télécharger
-les modèles configurés, par exemple :
-
-```bash
-docker compose exec ollama ollama pull gemma4:12b
-docker compose exec ollama ollama pull qwen3-vl:instruct
-```
+dans l'environnement de Docker Compose. Le modèle d'embedding est configurable
+avec `EMBEDDING_MODEL` et vaut `embeddinggemma` par défaut.
 
 Avant la génération, le service recherche jusqu'à cinq recettes dans PostgreSQL
 à partir d'un embedding des ingrédients détectés. Les recettes sont indexées
@@ -136,14 +138,18 @@ l'application et les erreurs de stockage sont affichées dans l'interface.
 Depuis le dossier `SAe_Smart_Finder`, sous PowerShell :
 
 ```powershell
-$env:PYTHONPATH = "src"
+py -3.12 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -e . ruff
 python -m unittest discover -s tests -v
+python -m ruff check src tests scripts\index_recipe_embeddings.py
 ```
 
 Les tests couvrent les contrats JSON, un jeu de scénarios d'ingrédients
 disponibles dans `tests/fixtures/level1_scenarios.json`, les erreurs et retries
-Ollama, la recherche PostgreSQL (mockée) et le callback Gradio. Ils n'ont pas
-besoin de serveurs Ollama ou PostgreSQL en cours d'exécution.
+Ollama, l'indexation pgvector, les métriques, la recherche PostgreSQL (mockée)
+et les callbacks Gradio. Ils n'ont pas besoin de serveurs Ollama ou PostgreSQL
+en cours d'exécution.
 
 ## Services Docker
 
