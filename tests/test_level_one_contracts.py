@@ -3,9 +3,10 @@ import unittest
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import httpx
+import psycopg
 from smart_recipe_inventory_manager.config import Settings
 from smart_recipe_inventory_manager.ollama_client.base import (
 	BaseModelEndpoint,
@@ -21,6 +22,10 @@ from smart_recipe_inventory_manager.service.core import (
 	generate_recipe,
 	suggest_recipe,
 )
+from smart_recipe_inventory_manager.storage.recipe_repository import (
+	RecipeRepositoryError,
+	search_recipes,
+)
 from smart_recipe_inventory_manager.ui_gradio import propose_recipe
 
 
@@ -28,6 +33,7 @@ class StubLLM(OllamaLLM):
 	def __init__(self, payload: dict[str, Any]) -> None:
 		self.payload = payload
 		self.schema: dict[str, Any] | None = None
+		self.prompt = ""
 
 	async def generate_json(
 		self,
@@ -36,6 +42,7 @@ class StubLLM(OllamaLLM):
 		**kwargs: Any,
 	) -> dict[str, Any]:
 		self.schema = schema
+		self.prompt = prompt
 		return self.payload
 
 
@@ -290,7 +297,64 @@ class OllamaRetryTests(unittest.IsolatedAsyncioTestCase):
 		self.assertEqual(request_count, 3)
 
 
+class RecipeRepositoryTests(unittest.TestCase):
+	def test_search_uses_normalized_names_and_returns_rows(self) -> None:
+		expected = [{
+			"id": 1,
+			"title": "Soupe tomate",
+			"available_ingredients": [{"name": "tomate"}],
+		}]
+		connection = MagicMock()
+		cursor = MagicMock()
+		connection.__enter__.return_value = connection
+		connection.cursor.return_value.__enter__.return_value = cursor
+		cursor.fetchall.return_value = expected
+
+		with patch(
+			"smart_recipe_inventory_manager.storage.recipe_repository.get_connection",
+			return_value=connection,
+		):
+			result = search_recipes([{"name": " TOMATEs "}], limit=3)
+
+		self.assertEqual(result, expected)
+		query, parameters = cursor.execute.call_args.args
+		self.assertIn("ORDER BY coverage DESC", query)
+		self.assertEqual(parameters, (["tomate", "tomates"], 3))
+
+	def test_search_skips_database_for_empty_or_invalid_ingredients(self) -> None:
+		with patch(
+			"smart_recipe_inventory_manager.storage.recipe_repository.get_connection"
+		) as get_connection:
+			self.assertEqual(search_recipes([], limit=5), [])
+			self.assertEqual(search_recipes([{"name": " "}], limit=5), [])
+			self.assertEqual(search_recipes([{"name": "tomate"}], limit=0), [])
+
+		get_connection.assert_not_called()
+
+	def test_database_errors_are_reported_explicitly(self) -> None:
+		with (
+			patch(
+				"smart_recipe_inventory_manager.storage.recipe_repository.get_connection",
+				side_effect=psycopg.OperationalError("database unavailable"),
+			),
+			self.assertRaises(RecipeRepositoryError),
+		):
+			search_recipes([{"name": "tomate"}])
+
+
 class GradioFlowTests(unittest.IsolatedAsyncioTestCase):
+	async def test_database_failure_is_user_visible(self) -> None:
+		with patch(
+			"smart_recipe_inventory_manager.ui_gradio.suggest_recipe",
+			new=AsyncMock(
+				side_effect=RecipeRepositoryError("PostgreSQL unavailable")
+			),
+		):
+			rows, message = await propose_recipe("fridge.jpg", None)
+
+		self.assertEqual(rows, [])
+		self.assertIn("PostgreSQL", message)
+
 	async def test_missing_image_returns_a_user_facing_error(self) -> None:
 		with patch(
 			"smart_recipe_inventory_manager.ui_gradio.suggest_recipe",
@@ -360,6 +424,29 @@ class GradioFlowTests(unittest.IsolatedAsyncioTestCase):
 
 
 class LevelOneContractTests(unittest.IsolatedAsyncioTestCase):
+	async def test_suggest_recipe_uses_database_candidates(self) -> None:
+		ingredients = [{"name": "tomate", "quantity": 2, "maturity": None}]
+		candidates = [{"title": "Soupe de tomates", "coverage": 1.0}]
+		llm = StubLLM({
+			"title": "Soupe",
+			"ingredients": ["tomate"],
+			"steps": ["Cuire."],
+			"cooking_time": "20 minutes",
+		})
+		with patch(
+			"smart_recipe_inventory_manager.service.core.search_recipes",
+			return_value=candidates,
+		) as search:
+			result = await suggest_recipe(
+				image_path="unused.jpg",
+				vlm=StubDetectionVLM(ingredients),
+				llm=llm,
+			)
+
+		search.assert_called_once_with(ingredients)
+		self.assertEqual(result["recipe"]["title"], "Soupe")
+		self.assertIn("Soupe de tomates", llm.prompt)
+
 	async def test_level_one_scenario_dataset(self) -> None:
 		scenarios = json.loads(
 			(Path(__file__).parent / "fixtures" / "level1_scenarios.json")

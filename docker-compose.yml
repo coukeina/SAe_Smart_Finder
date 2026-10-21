@@ -9,6 +9,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-app_db}
     volumes:
       - pg_data_smart_recipe_and_inventory_manager_anti_gaspillage:/var/lib/postgresql/data # persistance    
+      - ./database/init.sql:/docker-entrypoint-initdb.d/001-init.sql:ro
     ports:
       - "15432:5432" # (optionnel, uniquement pour debug)    
     healthcheck:

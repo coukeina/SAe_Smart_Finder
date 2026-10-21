@@ -8,6 +8,7 @@ from .ollama_client.base import (
     OllamaResponseError,
 )
 from .service.core import RecipeInputError, suggest_recipe
+from .storage.recipe_repository import RecipeRepositoryError
 
 
 def _format_recipe(recipe: dict[str, object]) -> str:
@@ -61,6 +62,8 @@ async def propose_recipe(
             "Réessayez avec une autre photo."
         )
     except RecipeInputError as error:
+        return [], str(error)
+    except RecipeRepositoryError as error:
         return [], str(error)
     except OllamaError as error:
         return [], f"Une erreur Ollama est survenue : {error}"

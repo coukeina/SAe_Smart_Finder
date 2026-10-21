@@ -7,6 +7,7 @@ from pydantic import ValidationError
 from ..ollama_client.base import OllamaResponseError
 from ..ollama_client.llm import OllamaLLM
 from ..ollama_client.vlm import OllamaVLM
+from ..storage.recipe_repository import search_recipes
 from .models import GeneratedRecipe, IngredientDetection
 
 
@@ -31,13 +32,6 @@ def _is_detected_ingredient(recipe_ingredient: str, detected_names: set[str]) ->
         or name in {normalized + "s", normalized + "x"}
         for name in detected_names
     )
-
-
-def search_recipes(
-    ingredients: list[dict[str, Any]],
-    limit: int = 5,
-) -> list[dict[str, Any]]:
-    return []
 
 
 DETECTION_PROMPT = """
@@ -99,7 +93,7 @@ Tu es un assistant spécialisé dans les recettes anti-gaspillage.
 Ingrédients disponibles :
 {ingredients}
 
-Recettes existantes compatibles :
+Suggestions du référentiel de recettes (à adapter aux ingrédients disponibles) :
 {recipes or []}
 
 Préférences de l'utilisateur :

@@ -47,14 +47,22 @@ docker compose up --build
 http://localhost:7860
 ```
 
-4. Initialiser la base de données après le premier démarrage :
+4. Le schéma PostgreSQL est initialisé automatiquement lorsque le volume de la
+   base est créé pour la première fois. Pour un volume déjà existant, rejouer
+   le schéma manuellement :
 
 ```bash
 docker compose exec -T pg psql -U app_user -d app_db -c "CREATE EXTENSION IF NOT EXISTS vector;"
 Get-Content database/init.sql | docker compose exec -T pg psql -U app_user -d app_db
 ```
 
-5. Pour arrêter les services :
+5. Importer le jeu de recettes dans PostgreSQL :
+
+```bash
+docker compose exec app python scripts/import_recipes.py
+```
+
+6. Pour arrêter les services :
 
 ```bash
 docker compose down
@@ -94,6 +102,12 @@ docker compose exec ollama ollama pull gemma4:12b
 docker compose exec ollama ollama pull qwen3-vl:instruct
 ```
 
+Avant la génération, le service recherche jusqu'à cinq recettes dans PostgreSQL
+à partir des ingrédients détectés. Les résultats sont classés selon la part des
+ingrédients de la recette retrouvés dans la photo, puis transmis au LLM comme
+pistes à adapter. La réponse finale reste limitée aux ingrédients détectés.
+Une indisponibilité de la base est signalée dans l'interface.
+
 ### Vérifier les tests
 
 Depuis le dossier `SAe_Smart_Finder`, sous PowerShell :
@@ -105,8 +119,8 @@ python -m unittest discover -s tests -v
 
 Les tests couvrent les contrats JSON, un jeu de scénarios d'ingrédients
 disponibles dans `tests/fixtures/level1_scenarios.json`, les erreurs et retries
-Ollama, ainsi que la conversion des résultats et erreurs pour le callback
-Gradio. Ils n'ont pas besoin d'un serveur Ollama en cours d'exécution.
+Ollama, la recherche PostgreSQL (mockée) et le callback Gradio. Ils n'ont pas
+besoin de serveurs Ollama ou PostgreSQL en cours d'exécution.
 
 ## Services Docker
 
