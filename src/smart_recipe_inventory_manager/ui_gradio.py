@@ -88,7 +88,7 @@ def build_demo() -> gr.Blocks:
 			label="Ingrédients détectés",
 		)
 		gr.Markdown("## Recette(s) proposée(s)")
-		recipe_output = gr.Markdown("La recette apparaîtra ici après l'analyse.")
+		recipe_output = gr.Markdown("Les recettes apparaîtront ici après l'analyse.")
 
 		generate_button.click(
 			fn=propose_recipe,
