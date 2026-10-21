@@ -6,6 +6,7 @@ from typing import Any
 from unittest.mock import AsyncMock, patch
 
 import httpx
+
 from smart_recipe_inventory_manager.config import Settings
 from smart_recipe_inventory_manager.ollama_client.base import (
 	BaseModelEndpoint,
