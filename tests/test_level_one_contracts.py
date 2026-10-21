@@ -6,6 +6,7 @@ from typing import Any
 from unittest.mock import AsyncMock, patch
 
 import httpx
+from smart_recipe_inventory_manager.config import Settings
 from smart_recipe_inventory_manager.ollama_client.base import (
 	BaseModelEndpoint,
 	OllamaConnectionError,
@@ -105,6 +106,67 @@ class StubDetectionVLM(OllamaVLM):
 
 
 class OllamaRetryTests(unittest.IsolatedAsyncioTestCase):
+	async def test_streaming_response_is_aggregated(self) -> None:
+		response_body = (
+			'{"response":"hel","done":false}\n'
+			'{"response":"lo","done":true,"eval_count":2}\n'
+		)
+		transport = httpx.MockTransport(
+			lambda request: httpx.Response(200, content=response_body)
+		)
+		real_client = httpx.AsyncClient
+
+		def client_factory(**kwargs: Any) -> httpx.AsyncClient:
+			return real_client(transport=transport, **kwargs)
+
+		endpoint = StubEndpoint("test-model", "http://ollama", 1)
+		with patch(
+			"smart_recipe_inventory_manager.ollama_client.base.httpx.AsyncClient",
+			side_effect=client_factory,
+		):
+			result = await endpoint._post(
+				"/api/generate",
+				{"stream": True},
+			)
+
+		self.assertEqual(result["response"], "hello")
+		self.assertEqual(result["eval_count"], 2)
+
+	async def test_context_error_in_stream_is_not_retried(self) -> None:
+		request_count = 0
+
+		def respond(request: httpx.Request) -> httpx.Response:
+			nonlocal request_count
+			request_count += 1
+			return httpx.Response(
+				200,
+				content='{"error":"input length exceeds context length"}\n',
+			)
+
+		transport = httpx.MockTransport(respond)
+		real_client = httpx.AsyncClient
+
+		def client_factory(**kwargs: Any) -> httpx.AsyncClient:
+			return real_client(transport=transport, **kwargs)
+
+		endpoint = StubEndpoint("test-model", "http://ollama", 1)
+		with (
+			patch(
+				"smart_recipe_inventory_manager.ollama_client.base.httpx.AsyncClient",
+				side_effect=client_factory,
+			),
+			self.assertRaises(OllamaContextError),
+		):
+			await endpoint._post("/api/generate", {"stream": True})
+
+		self.assertEqual(request_count, 1)
+
+	def test_vlm_default_matches_required_model(self) -> None:
+		self.assertEqual(
+			Settings.model_fields["vlm_model"].default,
+			"qwen3-vl:instruct",
+		)
+
 	async def test_connection_and_timeout_errors_are_retried(self) -> None:
 		for error_type in (httpx.ConnectError, httpx.ReadTimeout):
 			with self.subTest(error_type=error_type.__name__):
