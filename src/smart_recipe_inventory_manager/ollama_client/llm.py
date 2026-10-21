@@ -1,10 +1,11 @@
 import asyncio
 import json
 import re
-from typing import Any, Mapping, Sequence
+from collections.abc import Mapping, Sequence
+from typing import Any
 
-from .base import BaseModelEndpoint, OllamaResponseError, RETRY_DELAY_SECONDS
 from ..config import settings
+from .base import RETRY_DELAY_SECONDS, BaseModelEndpoint, OllamaResponseError
 
 
 class OllamaLLM(BaseModelEndpoint):

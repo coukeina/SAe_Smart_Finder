@@ -85,13 +85,13 @@ alors une photo plus ciblée.
 ### Modèles Ollama
 
 Les modèles sont configurables avec `LLM_MODEL` et `VLM_MODEL`. Les valeurs par
-défaut du dépôt sont `gemma4:12b` et `qwen3-vl:4b`. Elles peuvent être remplacées
+défaut du dépôt sont `gemma4:12b` et `qwen3-vl:instruct`. Elles peuvent être remplacées
 dans l'environnement de Docker Compose. Après le démarrage d'Ollama, télécharger
 les modèles configurés, par exemple :
 
 ```bash
 docker compose exec ollama ollama pull gemma4:12b
-docker compose exec ollama ollama pull qwen3-vl:4b
+docker compose exec ollama ollama pull qwen3-vl:instruct
 ```
 
 ### Vérifier les tests

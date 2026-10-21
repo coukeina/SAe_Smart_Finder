@@ -1,26 +1,26 @@
 import json
 import unittest
+from collections.abc import Mapping, Sequence
 from pathlib import Path
-from typing import Any, Mapping, Sequence
+from typing import Any
 from unittest.mock import AsyncMock, patch
 
 import httpx
-
 from smart_recipe_inventory_manager.ollama_client.base import (
 	BaseModelEndpoint,
-	OllamaContextError,
 	OllamaConnectionError,
+	OllamaContextError,
 	OllamaResponseError,
 )
 from smart_recipe_inventory_manager.ollama_client.llm import OllamaLLM
 from smart_recipe_inventory_manager.ollama_client.vlm import OllamaVLM
-from smart_recipe_inventory_manager.ui_gradio import propose_recipe
 from smart_recipe_inventory_manager.service.core import (
 	RecipeInputError,
 	detect_ingredients,
 	generate_recipe,
 	suggest_recipe,
 )
+from smart_recipe_inventory_manager.ui_gradio import propose_recipe
 
 
 class StubLLM(OllamaLLM):
@@ -110,19 +110,25 @@ class OllamaRetryTests(unittest.IsolatedAsyncioTestCase):
 			with self.subTest(error_type=error_type.__name__):
 				request_count = 0
 
-				def respond(request: httpx.Request) -> httpx.Response:
+				def respond(
+					request: httpx.Request,
+					retry_error: type[httpx.TransportError] = error_type,
+				) -> httpx.Response:
 					nonlocal request_count
 					request_count += 1
 					if request_count == 1:
-						raise error_type("temporary failure", request=request)
+						raise retry_error("temporary failure", request=request)
 					return httpx.Response(200, json={"response": "ok"})
 
 				transport = httpx.MockTransport(respond)
 				real_client = httpx.AsyncClient
-				client_factory = lambda **kwargs: real_client(
-					transport=transport,
-					**kwargs,
-				)
+
+				def client_factory(
+					real_client: type[httpx.AsyncClient] = real_client,
+					request_transport: httpx.MockTransport = transport,
+					**kwargs: Any,
+				) -> httpx.AsyncClient:
+					return real_client(transport=request_transport, **kwargs)
 				endpoint = StubEndpoint("test-model", "http://ollama", 1)
 
 				with (
@@ -189,9 +195,8 @@ class OllamaRetryTests(unittest.IsolatedAsyncioTestCase):
 		with patch(
 			"smart_recipe_inventory_manager.ollama_client.base.httpx.AsyncClient",
 			side_effect=client_factory,
-		):
-			with self.assertRaises(OllamaContextError):
-				await endpoint._post("/api/generate", {})
+		), self.assertRaises(OllamaContextError):
+			await endpoint._post("/api/generate", {})
 
 		self.assertEqual(request_count, 1)
 
@@ -216,10 +221,9 @@ class OllamaRetryTests(unittest.IsolatedAsyncioTestCase):
 			patch(
 				"smart_recipe_inventory_manager.ollama_client.base.asyncio.sleep",
 				new=AsyncMock(),
-			),
+			),self.assertRaises(OllamaResponseError)
 		):
-			with self.assertRaises(OllamaResponseError):
-				await endpoint._post("/api/generate", {})
+			await endpoint._post("/api/generate", {})
 
 		self.assertEqual(request_count, 3)
 
@@ -233,7 +237,7 @@ class GradioFlowTests(unittest.IsolatedAsyncioTestCase):
 			rows, recipe = await propose_recipe(None, None)
 
 		self.assertEqual(rows, [])
-		self.assertIn("Aucune image", recipe["error"])
+		self.assertIn("Aucune image", recipe)
 		suggest.assert_not_awaited()
 
 	async def test_success_returns_detected_ingredients_and_recipe(self) -> None:
@@ -257,7 +261,10 @@ class GradioFlowTests(unittest.IsolatedAsyncioTestCase):
 			rows, recipe = await propose_recipe("fridge.jpg", "rapide")
 
 		self.assertEqual(rows, [["tomate", 2, None]])
-		self.assertEqual(recipe, expected["recipe"])
+		self.assertIn("## Soupe", recipe)
+		self.assertIn("20 minutes", recipe)
+		self.assertIn("- tomate", recipe)
+		self.assertIn("1. Cuire.", recipe)
 		suggest.assert_awaited_once_with(
 			image_path="fridge.jpg",
 			preferences="rapide",
@@ -287,7 +294,7 @@ class GradioFlowTests(unittest.IsolatedAsyncioTestCase):
 					rows, recipe = await propose_recipe("fridge.jpg", None)
 
 				self.assertEqual(rows, [])
-				self.assertIn(expected_message, recipe["error"])
+				self.assertIn(expected_message, recipe)
 
 
 class LevelOneContractTests(unittest.IsolatedAsyncioTestCase):
@@ -377,9 +384,8 @@ class LevelOneContractTests(unittest.IsolatedAsyncioTestCase):
 		), patch(
 			"smart_recipe_inventory_manager.ollama_client.vlm.asyncio.sleep",
 			new=AsyncMock(),
-		):
-			with self.assertRaises(OllamaResponseError):
-				await detect_ingredients("image.jpg", vlm=vlm)
+		), self.assertRaises(OllamaResponseError):
+			await detect_ingredients("image.jpg", vlm=vlm)
 
 		self.assertEqual(vlm.calls, 2)
 
