@@ -1,6 +1,7 @@
 import json
+import math
+from collections.abc import Sequence
 from datetime import datetime
-from decimal import Decimal
 from pathlib import Path
 
 import gradio as gr
@@ -12,7 +13,7 @@ from .ollama_client.base import (
     OllamaError,
     OllamaResponseError,
 )
-from .service.core import RecipeInputError, suggest_recipe
+from .service.core import RecipeInputError, analyze_photo, recipes_from_ingredients
 from .service.inventory import (
     InventoryInputError,
     get_inventory,
@@ -21,58 +22,16 @@ from .service.inventory import (
 from .storage.inventory_repository import InventoryRepositoryError
 from .storage.recipe_repository import RecipeRepositoryError
 
-SIMILAR_RECIPES_SHOWN = 2
 
-
-def _json_default(value: object) -> object:
-    # Les colonnes NUMERIC de PostgreSQL arrivent en Decimal, non sérialisable par json.
-    return float(value) if isinstance(value, Decimal) else str(value)
-
-
-def save_result(result: dict[str, object]) -> Path:
+def save_json(name: str, payload: dict[str, object], stamp: str) -> Path:
     output_dir = Path(settings.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
-    path = output_dir / f"recipe_{datetime.now():%Y%m%d_%H%M%S}.json"
+    path = output_dir / f"{name}_{stamp}.json"
     path.write_text(
-        json.dumps(result, ensure_ascii=False, indent=2, default=_json_default),
+        json.dumps(payload, ensure_ascii=False, indent=2),
         encoding="utf-8",
     )
     return path
-
-
-def _format_similar_recipes(recipes: list[object]) -> str:
-    blocks = []
-    for recipe in recipes[:SIMILAR_RECIPES_SHOWN]:
-        if not isinstance(recipe, dict) or not recipe.get("title"):
-            continue
-
-        lines = [f"### {recipe['title']}"]
-        details = []
-        coverage = recipe.get("coverage")
-        if isinstance(coverage, (int, float, Decimal)):
-            details.append(f"{float(coverage):.0%} des ingrédients disponibles")
-        similarity = recipe.get("cosine_similarity")
-        if isinstance(similarity, (int, float)):
-            details.append(f"similarité cosinus brute {similarity!r}")
-        if details:
-            lines.append("*" + " — ".join(details) + "*")
-
-        missing = recipe.get("missing_ingredients")
-        if isinstance(missing, list):
-            names = [str(item.get("name")) for item in missing if isinstance(item, dict)]
-            if names:
-                lines.append("**À prévoir :** " + ", ".join(names))
-
-        steps = recipe.get("steps")
-        if isinstance(steps, list) and steps:
-            lines.append(
-                "\n".join(f"{index}. {step}" for index, step in enumerate(steps, start=1))
-            )
-        blocks.append("\n\n".join(lines))
-
-    if not blocks:
-        return ""
-    return "\n\n## Autres recettes proches de votre inventaire\n\n" + "\n\n".join(blocks)
 
 
 def _format_recipe(recipe: dict[str, object]) -> str:
@@ -98,7 +57,10 @@ def _format_recipe(recipe: dict[str, object]) -> str:
     return recipe_text
 
 
-def _format_metrics(metrics: dict[str, object]) -> str:
+def _format_metrics(
+    metrics: dict[str, object],
+    keys: Sequence[str] | None = None,
+) -> str:
     labels = (
         ("vision_latency_ms", "Latence VLM"),
         ("generation_latency_ms", "Latence LLM"),
@@ -108,6 +70,8 @@ def _format_metrics(metrics: dict[str, object]) -> str:
     )
     lines = []
     for key, label in labels:
+        if keys is not None and key not in keys:
+            continue
         value = metrics.get(key)
         if isinstance(value, (int, float)) and not isinstance(value, bool):
             if key == "recipe_cosine_similarity":
@@ -125,64 +89,134 @@ def _format_metrics(metrics: dict[str, object]) -> str:
     return "\n".join(lines)
 
 
-async def propose_recipe(
+VISION_METRICS = ("vision_latency_ms",)
+GENERATION_METRICS = (
+    "generation_latency_ms",
+    "generated_tokens",
+    "tokens_per_second",
+    "recipe_cosine_similarity",
+)
+
+
+def _error_message(error: Exception, context_hint: str, retry_hint: str) -> str:
+    if isinstance(error, OllamaContextError):
+        return context_hint
+    if isinstance(error, OllamaConnectionError):
+        return (
+            "Le service Ollama est inaccessible. "
+            "Vérifiez qu'il est démarré, puis réessayez."
+        )
+    if isinstance(error, OllamaResponseError):
+        return f"Le modèle n'a pas renvoyé une réponse exploitable. {retry_hint}"
+    if isinstance(error, (RecipeInputError, RecipeRepositoryError)):
+        return str(error)
+    return f"Une erreur Ollama est survenue : {error}"
+
+
+def _clean_number(value: object) -> object:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return None
+    return None if math.isnan(value) else value
+
+
+def _rows_to_ingredients(rows: list[list[object]] | None) -> list[dict[str, object]]:
+    ingredients = []
+    for row in rows or []:
+        if not isinstance(row, (list, tuple)) or not row:
+            continue
+        name = row[0]
+        if not isinstance(name, str) or not name.strip():
+            continue
+        maturity = row[2] if len(row) > 2 else None
+        ingredients.append({
+            "name": name.strip(),
+            "quantity": _clean_number(row[1]) if len(row) > 1 else None,
+            "maturity": maturity if isinstance(maturity, str) and maturity.strip() else None,
+        })
+    return ingredients
+
+
+async def show_ingredients(
     image_path: str | None,
-    user_preferences: str | None,
 ) -> tuple[list[list[object]], str]:
     if not image_path:
         return [], "Aucune image sélectionnée. Ajoutez une photo puis réessayez."
 
     try:
-        result = await suggest_recipe(
-            image_path=image_path,
-            preferences=user_preferences or "",
-        )
-    except OllamaContextError:
-        return [], (
-            "La photo contient trop d'informations pour être analysée. "
-            "Essayez une photo plus rapprochée."
-        )
-    except OllamaConnectionError:
-        return [], (
-            "Le service Ollama est inaccessible. "
-            "Vérifiez qu'il est démarré, puis réessayez."
-        )
-    except OllamaResponseError:
-        return [], (
-            "Le modèle n'a pas renvoyé une réponse exploitable. "
-            "Réessayez avec une autre photo."
-        )
-    except RecipeInputError as error:
-        return [], str(error)
-    except RecipeRepositoryError as error:
-        return [], str(error)
-    except OllamaError as error:
-        return [], f"Une erreur Ollama est survenue : {error}"
+        analysis = await analyze_photo(image_path)
     except OSError:
         return [], "La photo n'a pas pu être lue. Choisissez un autre fichier."
+    except (OllamaError, RecipeInputError) as error:
+        return [], _error_message(
+            error,
+            context_hint=(
+                "La photo contient trop d'informations pour être analysée. "
+                "Essayez une photo plus rapprochée."
+            ),
+            retry_hint="Réessayez avec une autre photo.",
+        )
 
-    ingredients = result.get("ingredients", [])
+    ingredients = analysis["ingredients"]
     ingredient_rows = [
         [item.get("name"), item.get("quantity"), item.get("maturity")]
         for item in ingredients
-        if isinstance(item, dict)
     ]
-    recipe = result.get("recipe")
-    if not isinstance(recipe, dict):
-        return ingredient_rows, "La recette générée a un format invalide."
-
-    message = _format_recipe(recipe)
-    similar_recipes = result.get("similar_recipes")
-    if isinstance(similar_recipes, list):
-        message += _format_similar_recipes(similar_recipes)
-    metrics = result.get("metrics")
+    message = (
+        f"{len(ingredient_rows)} ingrédient(s) détecté(s) par l'IA. "
+        "Vous pouvez maintenant proposer des recettes."
+    )
+    metrics = analysis.get("metrics")
     if isinstance(metrics, dict):
-        message += "\n\n### Métriques\n" + _format_metrics(metrics)
+        message += "\n\n" + _format_metrics(metrics, VISION_METRICS)
     try:
-        save_result(result)
+        save_json(
+            "ingredients",
+            {"ingredients": ingredients},
+            f"{datetime.now():%Y%m%d_%H%M%S}",
+        )
     except OSError:
         message += "\n\nLe fichier JSON n'a pas pu être enregistré."
     return ingredient_rows, message
+
+
+async def propose_recipes(
+    ingredient_rows: list[list[object]] | None,
+    user_preferences: str | None,
+) -> str:
+    ingredients = _rows_to_ingredients(ingredient_rows)
+    if not ingredients:
+        return "Affichez d'abord les ingrédients de la photo pour obtenir des recettes."
+
+    try:
+        result = await recipes_from_ingredients(
+            ingredients,
+            preferences=user_preferences or "",
+        )
+    except (OllamaError, RecipeInputError, RecipeRepositoryError) as error:
+        return _error_message(
+            error,
+            context_hint=(
+                "La liste d'ingrédients est trop longue pour être traitée. "
+                "Retirez quelques ingrédients puis réessayez."
+            ),
+            retry_hint="Réessayez.",
+        )
+
+    recipes = result.get("recipes")
+    if not isinstance(recipes, list) or not recipes:
+        return "Les recettes générées ont un format invalide."
+
+    message = "\n\n---\n\n".join(
+        _format_recipe(recipe) for recipe in recipes if isinstance(recipe, dict)
+    )
+    metrics = result.get("metrics")
+    if isinstance(metrics, dict):
+        message += "\n\n### Métriques\n" + _format_metrics(metrics, GENERATION_METRICS)
+    try:
+        save_json("recipes", {"recipes": recipes}, f"{datetime.now():%Y%m%d_%H%M%S}")
+    except OSError:
+        message += "\n\nLe fichier JSON n'a pas pu être enregistré."
+    return message
 
 
 def _inventory_rows(inventory: list[dict[str, object]]) -> list[list[object]]:
@@ -226,7 +260,8 @@ def build_demo() -> gr.Blocks:
     with gr.Blocks(title="Smart Recipe") as demo:
         gr.Markdown(
             "# Smart Recipe\n\n"
-            "Déposez une photo de votre frigo ou placard pour obtenir une recette adaptée."
+            "Déposez une photo de votre frigo ou placard : l'IA détecte les "
+            "ingrédients, puis vous propose des recettes."
         )
 
         with gr.Row():
@@ -240,17 +275,18 @@ def build_demo() -> gr.Blocks:
                 placeholder="Exemple : végétarien, rapide, pour 2 personnes",
             )
 
-        generate_button = gr.Button("Proposer une recette")
-        with gr.Row():
-            ingredients_output = gr.Dataframe(
-                headers=["Aliment", "Quantité", "Maturité"],
-                label="Ingrédients détectés",
-                type="array",
-                interactive=True,
-            )
-            recipe_output = gr.Markdown(
-                "La recette apparaîtra ici après l'analyse."
-            )
+        ingredients_button = gr.Button("Afficher les ingrédients")
+        ingredients_status = gr.Markdown()
+        ingredients_output = gr.Dataframe(
+            headers=["Aliment", "Quantité", "Maturité"],
+            label="Ingrédients détectés par l'IA",
+            type="array",
+            interactive=True,
+        )
+        recipes_button = gr.Button("Proposer des recettes")
+        recipe_output = gr.Markdown(
+            "Les recettes apparaîtront ici après l'analyse des ingrédients."
+        )
 
         gr.Markdown(
             "Vérifiez et corrigez les ingrédients détectés dans le tableau avant "
@@ -272,10 +308,15 @@ def build_demo() -> gr.Blocks:
         )
         inventory_status = gr.Markdown()
 
-        generate_button.click(
-            fn=propose_recipe,
-            inputs=[image_input, preferences_input],
-            outputs=[ingredients_output, recipe_output],
+        ingredients_button.click(
+            fn=show_ingredients,
+            inputs=[image_input],
+            outputs=[ingredients_output, ingredients_status],
+        )
+        recipes_button.click(
+            fn=propose_recipes,
+            inputs=[ingredients_output, preferences_input],
+            outputs=[recipe_output],
         )
         confirm_button.click(
             fn=confirm_inventory,

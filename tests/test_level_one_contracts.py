@@ -22,6 +22,7 @@ from smart_recipe_inventory_manager.service.core import (
 	RecipeInputError,
 	detect_ingredients,
 	generate_recipe,
+	generate_recipes,
 	suggest_recipe,
 )
 from smart_recipe_inventory_manager.storage.recipe_repository import (
@@ -29,7 +30,11 @@ from smart_recipe_inventory_manager.storage.recipe_repository import (
 	recipe_embedding_text,
 	search_recipes,
 )
-from smart_recipe_inventory_manager.ui_gradio import propose_recipe, save_result
+from smart_recipe_inventory_manager.ui_gradio import (
+	propose_recipes,
+	save_json,
+	show_ingredients,
+)
 
 
 class StubLLM(OllamaLLM):
@@ -412,42 +417,76 @@ class RecipeRepositoryTests(unittest.TestCase):
 class GradioFlowTests(unittest.IsolatedAsyncioTestCase):
 	async def test_database_failure_is_user_visible(self) -> None:
 		with patch(
-			"smart_recipe_inventory_manager.ui_gradio.suggest_recipe",
+			"smart_recipe_inventory_manager.ui_gradio.recipes_from_ingredients",
 			new=AsyncMock(
 				side_effect=RecipeRepositoryError("PostgreSQL unavailable")
 			),
 		):
-			rows, message = await propose_recipe("fridge.jpg", None)
+			message = await propose_recipes([["tomate", 2, None]], None)
 
-		self.assertEqual(rows, [])
 		self.assertIn("PostgreSQL", message)
 
 	async def test_missing_image_returns_a_user_facing_error(self) -> None:
 		with patch(
-			"smart_recipe_inventory_manager.ui_gradio.suggest_recipe",
+			"smart_recipe_inventory_manager.ui_gradio.analyze_photo",
 			new=AsyncMock(),
-		) as suggest:
-			rows, recipe = await propose_recipe(None, None)
+		) as analyze:
+			rows, message = await show_ingredients(None)
 
 		self.assertEqual(rows, [])
-		self.assertIn("Aucune image", recipe)
-		suggest.assert_not_awaited()
+		self.assertIn("Aucune image", message)
+		analyze.assert_not_awaited()
 
-	async def test_success_returns_detected_ingredients_and_recipe(self) -> None:
-		expected = {
-			"ingredients": [{
-				"name": "tomate",
-				"quantity": 2,
-				"maturity": None,
-			}],
-			"recipe": {
-				"title": "Soupe",
-				"ingredients": ["tomate"],
-				"steps": ["Cuire."],
-				"cooking_time": "20 minutes",
-			},
+	async def test_recipes_require_displayed_ingredients(self) -> None:
+		with patch(
+			"smart_recipe_inventory_manager.ui_gradio.recipes_from_ingredients",
+			new=AsyncMock(),
+		) as generate:
+			message = await propose_recipes([[None, None, None]], None)
+
+		self.assertIn("Affichez d'abord les ingrédients", message)
+		generate.assert_not_awaited()
+
+	async def test_show_ingredients_lists_detected_ingredients_and_saves_json(self) -> None:
+		detected = [{"name": "tomate", "quantity": 2, "maturity": None}]
+		analysis = {
+			"ingredients": detected,
+			"metrics": {"vision_latency_ms": 125.5},
+		}
+		with patch(
+			"smart_recipe_inventory_manager.ui_gradio.analyze_photo",
+			new=AsyncMock(return_value=analysis),
+		) as analyze, patch(
+			"smart_recipe_inventory_manager.ui_gradio.save_json"
+		) as save:
+			rows, message = await show_ingredients("fridge.jpg")
+
+		self.assertEqual(rows, [["tomate", 2, None]])
+		self.assertIn("1 ingrédient(s)", message)
+		self.assertIn("125.50 ms", message)
+		self.assertNotIn("Tokens", message)
+		analyze.assert_awaited_once_with("fridge.jpg")
+		save.assert_called_once()
+		self.assertEqual(save.call_args.args[0], "ingredients")
+		self.assertEqual(save.call_args.args[1], {"ingredients": detected})
+
+	async def test_propose_recipes_displays_every_recipe_and_saves_json(self) -> None:
+		generated = {
+			"recipes": [
+				{
+					"title": "Soupe",
+					"ingredients": ["tomate"],
+					"steps": ["Cuire."],
+					"cooking_time": "20 minutes",
+				},
+				{
+					"title": "Salade",
+					"ingredients": ["tomate"],
+					"steps": ["Couper."],
+					"cooking_time": "5 minutes",
+				},
+			],
 			"metrics": {
-				"vision_latency_ms": 125.5,
 				"generation_latency_ms": 250.0,
 				"generated_tokens": 42,
 				"tokens_per_second": 21.0,
@@ -455,70 +494,45 @@ class GradioFlowTests(unittest.IsolatedAsyncioTestCase):
 			},
 		}
 		with patch(
-			"smart_recipe_inventory_manager.ui_gradio.suggest_recipe",
-			new=AsyncMock(return_value=expected),
-		) as suggest, patch(
-			"smart_recipe_inventory_manager.ui_gradio.save_result"
+			"smart_recipe_inventory_manager.ui_gradio.recipes_from_ingredients",
+			new=AsyncMock(return_value=generated),
+		) as generate, patch(
+			"smart_recipe_inventory_manager.ui_gradio.save_json"
 		) as save:
-			rows, recipe = await propose_recipe("fridge.jpg", "rapide")
+			recipe = await propose_recipes(
+				[["tomate", float("nan"), None], ["", None, None]],
+				"rapide",
+			)
 
-		save.assert_called_once_with(expected)
-
-		self.assertEqual(rows, [["tomate", 2, None]])
+		generate.assert_awaited_once_with(
+			[{"name": "tomate", "quantity": None, "maturity": None}],
+			preferences="rapide",
+		)
+		save.assert_called_once()
+		self.assertEqual(save.call_args.args[0], "recipes")
+		self.assertEqual(save.call_args.args[1], {"recipes": generated["recipes"]})
 		self.assertIn("## Soupe", recipe)
+		self.assertIn("## Salade", recipe)
 		self.assertIn("20 minutes", recipe)
 		self.assertIn("- tomate", recipe)
 		self.assertIn("1. Cuire.", recipe)
-		self.assertIn("125.50 ms", recipe)
+		self.assertIn("250.00 ms", recipe)
 		self.assertIn("42", recipe)
 		self.assertIn("0.876543210123", recipe)
-		suggest.assert_awaited_once_with(
-			image_path="fridge.jpg",
-			preferences="rapide",
-		)
+		self.assertNotIn("Latence VLM", recipe)
 
-	async def test_similar_recipes_are_listed_after_the_generated_recipe(self) -> None:
-		result = {
-			"ingredients": [{"name": "tomate", "quantity": 2, "maturity": None}],
-			"recipe": {
-				"title": "Soupe",
-				"ingredients": ["tomate"],
-				"steps": ["Cuire."],
-				"cooking_time": "20 minutes",
-			},
-			"similar_recipes": [{
-				"title": "Gratin de tomates",
-				"coverage": 0.5,
-				"cosine_similarity": 0.75,
-				"missing_ingredients": [{"name": "fromage"}],
-				"steps": ["Enfourner."],
-			}],
-		}
-		with patch(
-			"smart_recipe_inventory_manager.ui_gradio.suggest_recipe",
-			new=AsyncMock(return_value=result),
-		), patch("smart_recipe_inventory_manager.ui_gradio.save_result"):
-			_, message = await propose_recipe("fridge.jpg", None)
-
-		self.assertIn("Autres recettes proches", message)
-		self.assertIn("### Gratin de tomates", message)
-		self.assertIn("50%", message)
-		self.assertIn("fromage", message)
-		self.assertIn("0.75", message)
-
-	def test_save_result_writes_json_with_decimal_values(self) -> None:
-		from decimal import Decimal
+	def test_save_json_writes_a_named_file_in_the_output_directory(self) -> None:
 		from tempfile import TemporaryDirectory
 
 		with TemporaryDirectory() as directory, patch(
 			"smart_recipe_inventory_manager.ui_gradio.settings.output_dir",
 			directory,
 		):
-			path = save_result({"coverage": Decimal("0.667"), "titre": "Purée"})
+			path = save_json("recipes", {"titre": "Purée"}, "20261022_120000")
 			saved = json.loads(path.read_text(encoding="utf-8"))
-			self.assertEqual(path.parent, Path(directory))
+			self.assertEqual(path, Path(directory) / "recipes_20261022_120000.json")
 
-		self.assertEqual(saved, {"coverage": 0.667, "titre": "Purée"})
+		self.assertEqual(saved, {"titre": "Purée"})
 
 	async def test_ollama_failures_return_friendly_messages(self) -> None:
 		failures = (
@@ -538,10 +552,10 @@ class GradioFlowTests(unittest.IsolatedAsyncioTestCase):
 		for error, expected_message in failures:
 			with self.subTest(error=type(error).__name__):
 				with patch(
-					"smart_recipe_inventory_manager.ui_gradio.suggest_recipe",
+					"smart_recipe_inventory_manager.ui_gradio.analyze_photo",
 					new=AsyncMock(side_effect=error),
 				):
-					rows, recipe = await propose_recipe("fridge.jpg", None)
+					rows, recipe = await show_ingredients("fridge.jpg")
 
 				self.assertEqual(rows, [])
 				self.assertIn(expected_message, recipe)
@@ -555,12 +569,12 @@ class LevelOneContractTests(unittest.IsolatedAsyncioTestCase):
 			"coverage": 1.0,
 			"cosine_similarity": 0.876543210123,
 		}]
-		llm = StubLLM({
+		llm = StubLLM({"recipes": [{
 			"title": "Soupe",
 			"ingredients": ["tomate"],
 			"steps": ["Cuire."],
 			"cooking_time": "20 minutes",
-		})
+		}]})
 		embedding = StubEmbedding([[0.1] * 768])
 		with patch(
 			"smart_recipe_inventory_manager.service.core.search_recipes",
@@ -574,7 +588,7 @@ class LevelOneContractTests(unittest.IsolatedAsyncioTestCase):
 			)
 
 		search.assert_called_once_with(ingredients, [0.1] * 768)
-		self.assertEqual(result["recipe"]["title"], "Soupe")
+		self.assertEqual(result["recipes"][0]["title"], "Soupe")
 		self.assertIn("Soupe de tomates", llm.prompt)
 		self.assertEqual(
 			result["metrics"]["recipe_cosine_similarity"],
@@ -710,6 +724,71 @@ class LevelOneContractTests(unittest.IsolatedAsyncioTestCase):
 		with self.assertRaisesRegex(OllamaResponseError, "not detected"):
 			await generate_recipe(
 				ingredients=[{"name": "œufs"}],
+				llm=llm,
+			)
+
+	async def test_generate_recipes_returns_several_validated_recipes(self) -> None:
+		llm = StubLLM({"recipes": [
+			{
+				"title": "Soupe",
+				"ingredients": ["tomates"],
+				"steps": ["Cuire."],
+				"cooking_time": "20 minutes",
+			},
+			{
+				"title": "Salade",
+				"ingredients": ["tomate"],
+				"steps": ["Couper."],
+				"cooking_time": "5 minutes",
+			},
+		]})
+
+		recipes = await generate_recipes(
+			ingredients=[{"name": "tomate"}],
+			count=2,
+			llm=llm,
+		)
+
+		self.assertEqual([recipe["title"] for recipe in recipes], ["Soupe", "Salade"])
+		self.assertIn("Propose 2 recettes", llm.prompt)
+		self.assertIn("recipes", llm.schema["required"])
+
+	async def test_generate_recipes_drops_recipes_with_undetected_ingredients(self) -> None:
+		llm = StubLLM({"recipes": [
+			{
+				"title": "Omelette",
+				"ingredients": ["œufs"],
+				"steps": ["Cuire."],
+				"cooking_time": "10 minutes",
+			},
+			{
+				"title": "Salade",
+				"ingredients": ["tomate"],
+				"steps": ["Couper."],
+				"cooking_time": "5 minutes",
+			},
+		]})
+
+		recipes = await generate_recipes(
+			ingredients=[{"name": "tomate"}],
+			count=2,
+			llm=llm,
+		)
+
+		self.assertEqual([recipe["title"] for recipe in recipes], ["Salade"])
+
+	async def test_generate_recipes_rejects_when_no_recipe_is_grounded(self) -> None:
+		llm = StubLLM({"recipes": [{
+			"title": "Omelette",
+			"ingredients": ["œufs"],
+			"steps": ["Cuire."],
+			"cooking_time": "10 minutes",
+		}]})
+
+		with self.assertRaisesRegex(OllamaResponseError, "not detected"):
+			await generate_recipes(
+				ingredients=[{"name": "tomate"}],
+				count=1,
 				llm=llm,
 			)
 

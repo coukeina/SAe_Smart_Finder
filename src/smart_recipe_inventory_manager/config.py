@@ -29,6 +29,7 @@ class Settings(BaseSettings):
 	db_password: str = Field(default="app_secret", alias="DB_PASSWORD")
 	vector_db_path: str = Field(default="/app/data/vector_store", alias="VECTOR_DB_PATH")
 	output_dir: str = Field(default="data/outputs", alias="OUTPUT_DIR")
+	recipe_count: int = Field(default=2, ge=1, le=5, alias="RECIPE_COUNT")
 
 
 @lru_cache

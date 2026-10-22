@@ -27,3 +27,9 @@ class GeneratedRecipe(BaseModel):
 	ingredients: list[NonEmptyString] = Field(min_length=1)
 	steps: list[NonEmptyString] = Field(min_length=1)
 	cooking_time: NonEmptyString
+
+
+class GeneratedRecipes(BaseModel):
+	model_config = ConfigDict(extra="forbid")
+
+	recipes: list[GeneratedRecipe] = Field(min_length=1)
