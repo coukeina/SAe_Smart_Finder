@@ -1,3 +1,8 @@
+import json
+from datetime import datetime
+from decimal import Decimal
+from pathlib import Path
+
 import gradio as gr
 
 from .config import settings
@@ -15,6 +20,59 @@ from .service.inventory import (
 )
 from .storage.inventory_repository import InventoryRepositoryError
 from .storage.recipe_repository import RecipeRepositoryError
+
+SIMILAR_RECIPES_SHOWN = 2
+
+
+def _json_default(value: object) -> object:
+    # Les colonnes NUMERIC de PostgreSQL arrivent en Decimal, non sérialisable par json.
+    return float(value) if isinstance(value, Decimal) else str(value)
+
+
+def save_result(result: dict[str, object]) -> Path:
+    output_dir = Path(settings.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    path = output_dir / f"recipe_{datetime.now():%Y%m%d_%H%M%S}.json"
+    path.write_text(
+        json.dumps(result, ensure_ascii=False, indent=2, default=_json_default),
+        encoding="utf-8",
+    )
+    return path
+
+
+def _format_similar_recipes(recipes: list[object]) -> str:
+    blocks = []
+    for recipe in recipes[:SIMILAR_RECIPES_SHOWN]:
+        if not isinstance(recipe, dict) or not recipe.get("title"):
+            continue
+
+        lines = [f"### {recipe['title']}"]
+        details = []
+        coverage = recipe.get("coverage")
+        if isinstance(coverage, (int, float, Decimal)):
+            details.append(f"{float(coverage):.0%} des ingrédients disponibles")
+        similarity = recipe.get("cosine_similarity")
+        if isinstance(similarity, (int, float)):
+            details.append(f"similarité cosinus brute {similarity!r}")
+        if details:
+            lines.append("*" + " — ".join(details) + "*")
+
+        missing = recipe.get("missing_ingredients")
+        if isinstance(missing, list):
+            names = [str(item.get("name")) for item in missing if isinstance(item, dict)]
+            if names:
+                lines.append("**À prévoir :** " + ", ".join(names))
+
+        steps = recipe.get("steps")
+        if isinstance(steps, list) and steps:
+            lines.append(
+                "\n".join(f"{index}. {step}" for index, step in enumerate(steps, start=1))
+            )
+        blocks.append("\n\n".join(lines))
+
+    if not blocks:
+        return ""
+    return "\n\n## Autres recettes proches de votre inventaire\n\n" + "\n\n".join(blocks)
 
 
 def _format_recipe(recipe: dict[str, object]) -> str:
@@ -114,9 +172,16 @@ async def propose_recipe(
         return ingredient_rows, "La recette générée a un format invalide."
 
     message = _format_recipe(recipe)
+    similar_recipes = result.get("similar_recipes")
+    if isinstance(similar_recipes, list):
+        message += _format_similar_recipes(similar_recipes)
     metrics = result.get("metrics")
     if isinstance(metrics, dict):
         message += "\n\n### Métriques\n" + _format_metrics(metrics)
+    try:
+        save_result(result)
+    except OSError:
+        message += "\n\nLe fichier JSON n'a pas pu être enregistré."
     return ingredient_rows, message
 
 

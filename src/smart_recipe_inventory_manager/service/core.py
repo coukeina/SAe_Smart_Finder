@@ -187,6 +187,7 @@ async def suggest_recipe(
     return {
         "ingredients": ingredients,
         "recipe": recipe,
+        "similar_recipes": recipes,
         "metrics": {
             "vision_latency_ms": getattr(vision_metrics, "latency_ms", None),
             "generation_latency_ms": getattr(

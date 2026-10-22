@@ -29,7 +29,7 @@ from smart_recipe_inventory_manager.storage.recipe_repository import (
 	recipe_embedding_text,
 	search_recipes,
 )
-from smart_recipe_inventory_manager.ui_gradio import propose_recipe
+from smart_recipe_inventory_manager.ui_gradio import propose_recipe, save_result
 
 
 class StubLLM(OllamaLLM):
@@ -457,8 +457,12 @@ class GradioFlowTests(unittest.IsolatedAsyncioTestCase):
 		with patch(
 			"smart_recipe_inventory_manager.ui_gradio.suggest_recipe",
 			new=AsyncMock(return_value=expected),
-		) as suggest:
+		) as suggest, patch(
+			"smart_recipe_inventory_manager.ui_gradio.save_result"
+		) as save:
 			rows, recipe = await propose_recipe("fridge.jpg", "rapide")
+
+		save.assert_called_once_with(expected)
 
 		self.assertEqual(rows, [["tomate", 2, None]])
 		self.assertIn("## Soupe", recipe)
@@ -472,6 +476,49 @@ class GradioFlowTests(unittest.IsolatedAsyncioTestCase):
 			image_path="fridge.jpg",
 			preferences="rapide",
 		)
+
+	async def test_similar_recipes_are_listed_after_the_generated_recipe(self) -> None:
+		result = {
+			"ingredients": [{"name": "tomate", "quantity": 2, "maturity": None}],
+			"recipe": {
+				"title": "Soupe",
+				"ingredients": ["tomate"],
+				"steps": ["Cuire."],
+				"cooking_time": "20 minutes",
+			},
+			"similar_recipes": [{
+				"title": "Gratin de tomates",
+				"coverage": 0.5,
+				"cosine_similarity": 0.75,
+				"missing_ingredients": [{"name": "fromage"}],
+				"steps": ["Enfourner."],
+			}],
+		}
+		with patch(
+			"smart_recipe_inventory_manager.ui_gradio.suggest_recipe",
+			new=AsyncMock(return_value=result),
+		), patch("smart_recipe_inventory_manager.ui_gradio.save_result"):
+			_, message = await propose_recipe("fridge.jpg", None)
+
+		self.assertIn("Autres recettes proches", message)
+		self.assertIn("### Gratin de tomates", message)
+		self.assertIn("50%", message)
+		self.assertIn("fromage", message)
+		self.assertIn("0.75", message)
+
+	def test_save_result_writes_json_with_decimal_values(self) -> None:
+		from decimal import Decimal
+		from tempfile import TemporaryDirectory
+
+		with TemporaryDirectory() as directory, patch(
+			"smart_recipe_inventory_manager.ui_gradio.settings.output_dir",
+			directory,
+		):
+			path = save_result({"coverage": Decimal("0.667"), "titre": "Purée"})
+			saved = json.loads(path.read_text(encoding="utf-8"))
+			self.assertEqual(path.parent, Path(directory))
+
+		self.assertEqual(saved, {"coverage": 0.667, "titre": "Purée"})
 
 	async def test_ollama_failures_return_friendly_messages(self) -> None:
 		failures = (
