@@ -1,20 +1,54 @@
-#### Sprint 1 : Génération de Recettes & Robustesse du Pipeline
+# Suivi de livraison SAE — Smart Recipe
 
-* User Stories :
-   * US 1.1 : En tant que développeur, j'implémente un adaptateur LLM asynchrone pointant sur `gemma4:12b` capable de générer une recette structurée (titre, ingrédients utilisés, étapes) à partir d'une liste d'ingrédients détectés.
-   * US 1.2 : En tant que développeur, je développe un parsing défensif des réponses du VLM et du LLM, avec logique de retry et gestion explicite des erreurs (JSON malformé, timeout, indisponibilité d'Ollama, dépassement de contexte).
-   * US 1.3 : En tant que développeur, je constitue un dataset de test comprenant des cas d'ingrédients incohérents (trop peu détectés, incompatibles entre eux) et des cas de panne simulée du serveur Ollama.
-   * Livrables / DoR & DoD :
-      * Module de génération de recettes avec tests unitaires validant la cohérence du format de sortie (JSON typé).
-      * Module de gestion d'erreurs avec tests validant un comportement dégradé propre en cas de panne Ollama ou de sortie malformée.
+Le découpage ci-dessous sert au suivi des livrables V1/V2/V3 ; il ne remplace
+pas une nomenclature de versions imposée par le sujet.
 
-#### Avancement
+## V1 — Parcours photo vers recette
 
-* [x] Définition de schémas typés pour la détection d'ingrédients et les recettes générées.
-* [x] Contraintes JSON transmises aux adaptateurs VLM et LLM, avec validation des réponses au niveau du service.
-* [x] Tests unitaires couvrant les réponses valides, le JSON malformé et les structures incomplètes.
-* [x] Retry borné des erreurs réseau (indisponibilité, délai dépassé), serveur et JSON VLM/LLM malformé ; dépassement de contexte signalé sans retry.
-* [x] Arrêt explicite si aucun ingrédient n'est détecté ; les ingrédients de la recette sont vérifiés contre la détection.
-* [x] Jeu de scénarios pour détection vide, ingrédient isolé, couple sans recette cohérente et ingrédient inventé par le LLM.
-* [x] Parcours Gradio couvert : photo absente, affichage des ingrédients et recette, messages adaptés aux erreurs Ollama.
-* [x] README actualisé avec le parcours niveau 1, les modèles, les tests et le démarrage local.
+**Objectif :** relier l'image à une recette générée et vérifiable.
+
+- [x] Détection VLM et réponses validées par schémas métier.
+- [x] Arrêt explicite en l'absence d'ingrédient détecté.
+- [x] Génération LLM structurée, avec refus d'ingrédients absents de la détection.
+- [x] Retries bornés et erreurs Ollama compréhensibles dans Gradio.
+- [x] Tests du parcours nominal, des réponses mal formées et des pannes.
+
+## V2 — Référentiel, recherche sémantique et inventaire
+
+**Objectif :** enrichir le parcours avec les données persistantes du projet.
+
+- [x] Recherche PostgreSQL de recettes et classement tenant compte des
+  ingrédients disponibles.
+- [x] Commande reproductible d'indexation des recettes avec `embeddinggemma`,
+  recherche pgvector et score cosine brut.
+- [x] Affichage des latences VLM/LLM, tokens générés, débit et score cosine.
+- [x] Inventaire éditable, confirmé par l'utilisateur et persisté dans
+  PostgreSQL.
+- [x] Tests unitaires des repositories, de l'indexation, des métriques et des
+  callbacks Gradio.
+- [ ] Vérifier le parcours complet sur une base PostgreSQL alimentée et un
+  serveur Ollama avec les trois modèles requis.
+
+## V3 — Validation de livraison et documentation
+
+**Objectif :** permettre à un autre membre du groupe de lancer et vérifier le
+projet sans hypothèses cachées.
+
+- [x] README avec installation Docker, import et réindexation des recettes,
+  modèles nécessaires et commandes de tests.
+- [x] Workflow GitHub Actions avec lint et tests unitaires.
+- [x] Validation locale : 46 tests, Ruff, compilation Python et configuration
+  Docker Compose réussis.
+- [x] CI verte sur la branche `feat/vector-recipe-search` (`b75d44a`).
+- [ ] Construire et lancer l'image Docker avec PostgreSQL et Ollama ; le moteur
+  Docker local n'était pas disponible lors de la validation.
+- [ ] Faire une démonstration sur des photos réelles et consigner les limites
+  de détection et de qualité des recettes.
+
+## Critères de clôture
+
+La livraison est clôturée lorsque les cases restantes des V2/V3 sont validées,
+que la CI est verte et qu'un essai réel du parcours photo → ingrédients →
+recettes est documenté. Les tests mockés vérifient les contrats applicatifs,
+mais ne mesurent ni la qualité des modèles ni les performances sur le matériel
+IUT.
