@@ -255,221 +255,613 @@ def refresh_inventory() -> tuple[list[list[object]], str]:
     return rows, f"{len(rows)} ingrédient(s) dans l'inventaire."
 
 CUSTOM_CSS = """
-/* =========================
-   SMARTFINDER — GLOBAL
-   ========================= */
+/* ==========================================
+   SMARTFINDER — FOOD TECH UI
+   ========================================== */
 
-.gradio-container {
-    max-width: 1280px !important;
-    margin: 0 auto !important;
-    padding: 24px 32px 60px !important;
-    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+:root {
+    --sf-bg: #070b12;
+    --sf-surface: #0d131d;
+    --sf-surface-2: #121a26;
+    --sf-border: rgba(255,255,255,.09);
+    --sf-text: #f5f7f2;
+    --sf-muted: #8d96a5;
+    --sf-lime: #b8ff3d;
+    --sf-lime-soft: rgba(184,255,61,.12);
 }
 
-/* Header */
+
+/* ---------- APP ---------- */
+
+html,
+body {
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: 100% !important;
+    background: #070b12 !important;
+}
+
+body {
+    overflow-x: hidden !important;
+}
+
+.gradio-container {
+    min-height: 100vh !important;
+
+    background:
+        radial-gradient(
+            circle at 15% 5%,
+            rgba(184,255,61,.07),
+            transparent 28%
+        ),
+        radial-gradient(
+            circle at 85% 30%,
+            rgba(42,122,255,.06),
+            transparent 28%
+        ),
+        #070b12 !important;
+}
+
+.gradio-container {
+    max-width: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+
+    padding: 28px max(34px, calc((100vw - 1240px) / 2)) 80px !important;
+
+    color: var(--sf-text) !important;
+}
+
+
+/* ---------- HEADER ---------- */
+
 .sf-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 8px 0 28px;
+    justify-content: space-between;
+
+    padding: 6px 0 28px;
+
+    border-bottom: 1px solid var(--sf-border);
 }
 
 .sf-logo {
+    color: white;
+
     font-size: 25px;
-    font-weight: 800;
-    letter-spacing: -1px;
+    font-weight: 900;
+
+    letter-spacing: -1.4px;
 }
 
 .sf-logo span {
-    opacity: .55;
+    color: var(--sf-lime);
+    opacity: 1;
 }
 
 .sf-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 13px;
-    border: 1px solid var(--border-color-primary);
-    border-radius: 999px;
-    font-size: 13px;
-    opacity: .8;
+    padding: 8px 14px;
+
+    border: 1px solid rgba(184,255,61,.25);
+    border-radius: 100px;
+
+    background: rgba(184,255,61,.05);
+
+    color: #cfff7b;
+
+    font-size: 11px;
+    font-weight: 800;
+
+    letter-spacing: 1px;
+    text-transform: uppercase;
 }
 
-/* Hero */
+.sf-badge span {
+    color: var(--sf-lime);
+}
+
+
+/* ---------- HERO ---------- */
+
 .sf-hero {
-    text-align: center;
-    padding: 36px 10px 30px;
+    position: relative;
+
+    padding: 85px 20px 58px;
+
+    text-align: left;
+
+    overflow: hidden;
+}
+
+.sf-hero::after {
+    content: "✦";
+
+    position: absolute;
+
+    right: 7%;
+    top: 38px;
+
+    color: var(--sf-lime);
+
+    font-size: 170px;
+    line-height: 1;
+
+    opacity: .09;
+
+    transform: rotate(12deg);
+
+    pointer-events: none;
 }
 
 .sf-eyebrow {
-    font-size: 13px;
-    font-weight: 700;
+    color: var(--sf-lime) !important;
+
+    margin-bottom: 18px;
+
+    font-size: 11px !important;
+    font-weight: 900 !important;
+
+    letter-spacing: 2.5px !important;
     text-transform: uppercase;
-    letter-spacing: 1.5px;
-    opacity: .55;
-    margin-bottom: 14px;
 }
 
 .sf-hero h1 {
-    font-size: clamp(38px, 6vw, 67px);
-    line-height: 1.02;
-    letter-spacing: -3px;
-    margin: 0 auto 18px;
-    max-width: 850px;
-    font-weight: 850;
+    max-width: 900px;
+
+    margin: 0;
+
+    color: #f7f8f4;
+
+    font-size: clamp(50px, 7vw, 86px);
+    line-height: .95;
+
+    font-weight: 900;
+
+    letter-spacing: -5px;
 }
 
 .sf-hero p {
+    max-width: 600px;
+
+    margin: 30px 0 0;
+
+    color: var(--sf-muted);
+
     font-size: 18px;
-    line-height: 1.6;
-    opacity: .65;
-    max-width: 650px;
-    margin: 0 auto;
+    line-height: 1.65;
 }
 
-/* Progress */
+
+/* ---------- PROGRESS ---------- */
+
 .sf-progress {
-    max-width: 720px;
-    margin: 24px auto 42px;
     display: flex;
     align-items: center;
-    justify-content: center;
+
+    max-width: 700px;
+
+    margin: 0 20px 70px;
 }
 
 .sf-step {
     display: flex;
     align-items: center;
-    gap: 9px;
-    font-size: 14px;
-    font-weight: 650;
-    white-space: nowrap;
+    gap: 10px;
+
+    color: #697384;
+
+    font-size: 11px;
+    font-weight: 900;
+
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
 }
 
 .sf-step-number {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    display: inline-flex;
+    display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid var(--border-color-primary);
-    font-size: 13px;
+
+    width: 34px;
+    height: 34px;
+
+    border: 1px solid #293344;
+    border-radius: 50%;
+
+    font-size: 11px;
 }
 
-.sf-step.active .sf-step-number {
-    background: var(--primary-500);
-    border-color: var(--primary-500);
+.sf-step.active {
     color: white;
 }
 
-.sf-step-line {
-    height: 1px;
-    background: var(--border-color-primary);
-    flex: 1;
-    min-width: 35px;
-    margin: 0 15px;
+.sf-step.active .sf-step-number {
+    background: var(--sf-lime);
+
+    border-color: var(--sf-lime);
+
+    color: #071008;
+
+    box-shadow:
+        0 0 0 5px rgba(184,255,61,.08),
+        0 0 30px rgba(184,255,61,.12);
 }
 
-/* Main card */
+.sf-step-line {
+    flex: 1;
+
+    height: 1px;
+
+    margin: 0 18px;
+
+    background: linear-gradient(
+        90deg,
+        #2c3746,
+        #17202c
+    );
+}
+
+
+/* ---------- SECTION TITLES ---------- */
+
 .sf-section-title {
-    margin-bottom: 4px !important;
+    margin: 0 10px 22px !important;
 }
 
 .sf-section-title h2 {
-    font-size: 23px;
-    letter-spacing: -.6px;
-    margin-bottom: 5px;
+    margin: 5px 0 8px !important;
+
+    color: #f7f8f4 !important;
+
+    font-size: 31px !important;
+    font-weight: 850 !important;
+
+    letter-spacing: -1.3px !important;
 }
 
 .sf-section-title p {
-    opacity: .6;
-    margin-top: 0;
-}
+    max-width: 680px;
 
-.sf-card {
-    border: 1px solid var(--border-color-primary) !important;
-    border-radius: 22px !important;
-    padding: 24px !important;
-    background: var(--background-fill-secondary) !important;
-}
+    margin: 0 !important;
 
-/* Image upload */
-.sf-image {
-    border-radius: 18px !important;
-    overflow: hidden !important;
-    min-height: 300px !important;
-}
+    color: var(--sf-muted) !important;
 
-/* Buttons */
-.sf-primary-btn {
-    min-height: 52px !important;
-    border-radius: 14px !important;
-    font-weight: 750 !important;
     font-size: 15px !important;
 }
 
-.sf-secondary-btn {
-    min-height: 48px !important;
-    border-radius: 14px !important;
-    font-weight: 650 !important;
+.sf-divider {
+    margin-top: 90px !important;
+    padding-top: 45px;
+
+    border-top: 1px solid var(--sf-border);
 }
 
-/* Status */
-.sf-status {
-    border-radius: 14px;
-    margin-top: 8px;
+
+/* ---------- CARDS ---------- */
+
+.sf-card {
+    position: relative;
+
+    padding: 12px !important;
+
+    border: 1px solid var(--sf-border) !important;
+    border-radius: 30px !important;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(255,255,255,.035),
+            rgba(255,255,255,.012)
+        ) !important;
+
+    box-shadow:
+        0 30px 80px rgba(0,0,0,.25) !important;
+
+    overflow: hidden;
 }
 
-/* Dataframes */
-.sf-table {
-    border-radius: 16px !important;
+.sf-card::before {
+    content: "";
+
+    position: absolute;
+
+    width: 220px;
+    height: 220px;
+
+    top: -120px;
+    right: -100px;
+
+    border-radius: 50%;
+
+    background: var(--sf-lime);
+
+    opacity: .035;
+
+    filter: blur(20px);
+
+    pointer-events: none;
+}
+
+
+/* ---------- IMAGE DROP ZONE ---------- */
+
+.sf-image {
+    min-height: 390px !important;
+
+    border: 1px dashed rgba(184,255,61,.25) !important;
+    border-radius: 23px !important;
+
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(184,255,61,.055),
+            transparent 50%
+        ),
+        #0a1019 !important;
+
     overflow: hidden !important;
+
+    transition:
+        border .25s ease,
+        transform .25s ease,
+        box-shadow .25s ease !important;
 }
 
-/* Recipe output */
-.sf-recipes {
-    border: 1px solid var(--border-color-primary);
-    border-radius: 20px;
-    padding: 22px !important;
-    min-height: 140px;
+.sf-image:hover {
+    border-color: rgba(184,255,61,.7) !important;
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        inset 0 0 40px rgba(184,255,61,.03),
+        0 18px 45px rgba(0,0,0,.25);
 }
 
-/* Preferences */
+
+/* ---------- BUTTONS ---------- */
+
+.sf-primary-btn {
+    min-height: 58px !important;
+
+    border: 0 !important;
+    border-radius: 17px !important;
+
+    background:
+        linear-gradient(
+            110deg,
+            #b8ff3d,
+            #8bea32
+        ) !important;
+
+    color: #071008 !important;
+
+    font-size: 14px !important;
+    font-weight: 900 !important;
+
+    letter-spacing: .2px;
+
+    box-shadow:
+        0 10px 30px rgba(184,255,61,.12) !important;
+
+    transition:
+        transform .2s ease,
+        box-shadow .2s ease,
+        filter .2s ease !important;
+}
+
+.sf-primary-btn:hover {
+    transform: translateY(-3px) !important;
+
+    filter: brightness(1.06);
+
+    box-shadow:
+        0 16px 45px rgba(184,255,61,.22) !important;
+}
+
+.sf-primary-btn:active {
+    transform: scale(.985) !important;
+}
+
+.sf-secondary-btn {
+    min-height: 52px !important;
+
+    border: 1px solid var(--sf-border) !important;
+    border-radius: 16px !important;
+
+    background: #101824 !important;
+
+    color: white !important;
+
+    font-weight: 750 !important;
+
+    transition: all .2s ease !important;
+}
+
+.sf-secondary-btn:hover {
+    border-color: rgba(184,255,61,.35) !important;
+
+    background: #151f2c !important;
+}
+
+
+/* ---------- TABLE ---------- */
+
+.sf-table {
+    border: 1px solid var(--sf-border) !important;
+    border-radius: 20px !important;
+
+    background: #0b111b !important;
+
+    overflow: hidden !important;
+
+    box-shadow: none !important;
+}
+
+.sf-table table {
+    background: transparent !important;
+}
+
+.sf-table th {
+    background: #101823 !important;
+
+    color: #9ba6b6 !important;
+
+    font-size: 11px !important;
+    font-weight: 900 !important;
+
+    letter-spacing: 1px !important;
+    text-transform: uppercase !important;
+}
+
+.sf-table td {
+    background: #0b111b !important;
+
+    border-color: rgba(255,255,255,.055) !important;
+
+    color: #f5f7f2 !important;
+}
+
+
+/* ---------- PREFERENCES ---------- */
+
 .sf-preferences {
     border-radius: 18px !important;
 }
 
-/* Divider title */
-.sf-divider {
-    margin-top: 45px;
-    padding-top: 30px;
-    border-top: 1px solid var(--border-color-primary);
+.sf-preferences > div {
+    border-color: var(--sf-border) !important;
 }
 
-/* Footer */
+
+/* ---------- RECIPE AREA ---------- */
+
+.sf-recipes {
+    position: relative;
+
+    min-height: 220px;
+
+    padding: 30px !important;
+
+    border: 1px solid rgba(184,255,61,.13) !important;
+    border-radius: 25px !important;
+
+    background:
+        radial-gradient(
+            circle at 95% 0%,
+            rgba(184,255,61,.08),
+            transparent 30%
+        ),
+        #0c131d !important;
+
+    box-shadow:
+        0 30px 80px rgba(0,0,0,.2);
+}
+
+.sf-recipes h1,
+.sf-recipes h2,
+.sf-recipes h3 {
+    color: #f7f8f4 !important;
+}
+
+
+/* ---------- STATUS ---------- */
+
+.sf-status {
+    margin: 15px 5px 0;
+
+    color: #c5ceda;
+}
+
+
+/* ---------- INVENTORY ---------- */
+
+.sf-inventory-card {
+    padding: 26px !important;
+
+    border: 1px solid var(--sf-border) !important;
+    border-radius: 25px !important;
+
+    background: #0b111a !important;
+}
+
+
+/* ---------- ANIMATION ---------- */
+
+@keyframes sfReveal {
+    from {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.sf-card,
+.sf-section-title,
+.sf-recipes {
+    animation: sfReveal .55s ease both;
+}
+
+
+/* ---------- FOOTER ---------- */
+
 .sf-footer {
+    margin-top: 70px;
+
+    color: #525c69;
+
     text-align: center;
-    opacity: .45;
-    font-size: 12px;
-    margin-top: 55px;
+
+    font-size: 11px;
+
+    letter-spacing: 1px;
+    text-transform: uppercase;
 }
 
-/* Mobile */
+
+/* ---------- MOBILE ---------- */
+
 @media (max-width: 700px) {
+
     .gradio-container {
-        padding: 16px 14px 40px !important;
+        padding: 18px 15px 55px !important;
+    }
+
+    .sf-header {
+        padding-bottom: 18px;
+    }
+
+    .sf-badge {
+        display: none;
     }
 
     .sf-hero {
-        padding-top: 20px;
+        padding:
+            55px 5px
+            40px;
     }
 
     .sf-hero h1 {
-        letter-spacing: -2px;
+        font-size: 48px;
+
+        letter-spacing: -3px;
+    }
+
+    .sf-hero p {
+        font-size: 16px;
+    }
+
+    .sf-hero::after {
+        font-size: 100px;
     }
 
     .sf-progress {
-        margin-bottom: 28px;
+        margin:
+            0 5px
+            45px;
     }
 
     .sf-step span:last-child {
@@ -477,11 +869,32 @@ CUSTOM_CSS = """
     }
 
     .sf-step-line {
-        margin: 0 8px;
+        margin: 0 9px;
     }
+
+    .sf-section-title h2 {
+        font-size: 26px !important;
+    }
+
+    .sf-divider {
+        margin-top: 60px !important;
+    }
+    footer {
+    display: none !important;
+}
 }
 """
+def reveal_preferences():
+    """Reveal recipe preferences after ingredient validation."""
+    return (
+        gr.update(visible=True),
+        gr.update(visible=True),
+    )
 
+
+def reveal_recipes():
+    """Reveal the recipe result section."""
+    return gr.update(visible=True)
 
 def build_demo() -> gr.Blocks:
     """Build the SmartFinder user interface."""
@@ -490,9 +903,11 @@ def build_demo() -> gr.Blocks:
         title="SmartFinder",
         css=CUSTOM_CSS,
         theme=gr.themes.Base(
-            primary_hue="emerald",
-            neutral_hue="slate",
-            radius_size="lg",
+        primary_hue="lime",
+        neutral_hue="slate",
+        radius_size="lg",
+        font=[gr.themes.GoogleFont("Inter"),"Arial","sans-serif",
+               ],
         ),
     ) as demo:
 
@@ -520,40 +935,23 @@ def build_demo() -> gr.Blocks:
         gr.HTML(
             """
             <section class="sf-hero">
-                <div class="sf-eyebrow">Anti-gaspillage · Propulsé par l'IA</div>
+
+                <div class="sf-eyebrow">
+                    ✦ AI-POWERED FOOD ASSISTANT
+                </div>
 
                 <h1>
-                    Ton frigo a déjà<br>
-                    ton prochain repas.
+                    COOK WHAT<br>
+                    YOU ALREADY HAVE.
                 </h1>
 
                 <p>
-                    Prends une photo de tes aliments.
-                    SmartFinder les reconnaît et imagine des recettes
-                    adaptées à ce que tu as vraiment chez toi.
+                    Ton frigo est probablement plus rempli que tu ne le penses.
+                    Prends une photo. SmartFinder détecte tes aliments et
+                    transforme ce que tu as déjà en idées de repas.
                 </p>
+
             </section>
-
-            <div class="sf-progress">
-                <div class="sf-step active">
-                    <span class="sf-step-number">1</span>
-                    <span>Photo</span>
-                </div>
-
-                <div class="sf-step-line"></div>
-
-                <div class="sf-step">
-                    <span class="sf-step-number">2</span>
-                    <span>Ingrédients</span>
-                </div>
-
-                <div class="sf-step-line"></div>
-
-                <div class="sf-step">
-                    <span class="sf-step-number">3</span>
-                    <span>Recettes</span>
-                </div>
-            </div>
             """
         )
 
@@ -602,7 +1000,7 @@ L'IA ne doit utiliser que les aliments réellement détectés.
                     )
 
                     ingredients_button = gr.Button(
-                        "✨ Analyser ma photo",
+                        " Analyser ma photo",
                         variant="primary",
                         elem_classes=["sf-primary-btn"],
                     )
@@ -610,21 +1008,79 @@ L'IA ne doit utiliser que les aliments réellement détectés.
         ingredients_status = gr.Markdown(
             elem_classes=["sf-status"]
         )
-
         # =========================
         # STEP 2 — INGREDIENTS
         # =========================
         gr.HTML(
-            """
-            <div class="sf-divider sf-section-title">
-                <h2>02 — Vérifie tes ingrédients</h2>
-                <p>
-                    L'IA peut se tromper. Corrige les aliments,
-                    quantités ou maturités avant de continuer.
-                </p>
+    """
+    <div style="
+        padding: 28px 26px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    ">
+
+        <div class="sf-eyebrow">
+            BEFORE YOU SCAN
+        </div>
+
+        <h2 style="
+            font-size: 28px;
+            line-height: 1.1;
+            letter-spacing: -1px;
+            margin: 0 0 25px;
+        ">
+            Give the AI<br>
+            something good to see.
+        </h2>
+
+        <div style="
+            display:grid;
+            gap:14px;
+            color:#9aa4b3;
+            font-size:14px;
+        ">
+
+            <div>
+                <b style="color:#b8ff3d;">01</b>
+                &nbsp; Garde les aliments visibles
             </div>
-            """
-        )
+
+            <div>
+                <b style="color:#b8ff3d;">02</b>
+                &nbsp; Évite les photos trop sombres
+            </div>
+
+            <div>
+                <b style="color:#b8ff3d;">03</b>
+                &nbsp; Cadre au plus près des aliments
+            </div>
+
+            <div>
+                <b style="color:#b8ff3d;">04</b>
+                &nbsp; Vérifie la détection avant de cuisiner
+            </div>
+
+        </div>
+
+        <div style="
+            margin-top:28px;
+            padding:14px 16px;
+            border:1px solid rgba(184,255,61,.12);
+            border-radius:14px;
+            background:rgba(184,255,61,.04);
+            color:#b6c0cd;
+            font-size:12px;
+            line-height:1.5;
+        ">
+            ✦ SmartFinder ne doit jamais inventer
+            un aliment absent de la photo.
+        </div>
+
+    </div>
+    """
+)
 
         ingredients_output = gr.Dataframe(
             headers=["Aliment", "Quantité", "Maturité"],
@@ -636,105 +1092,139 @@ L'IA ne doit utiliser que les aliments réellement détectés.
             elem_classes=["sf-table"],
         )
 
-        # =========================
-        # PREFERENCES
-        # =========================
-        with gr.Row():
-
-            servings_input = gr.Radio(
-                choices=["1", "2", "3", "4+"],
-                value="2",
-                label="👥 Pour combien de personnes ?",
-                elem_classes=["sf-preferences"],
-            )
-
-            time_input = gr.Radio(
-                choices=[
-                    "Moins de 15 min",
-                    "Moins de 30 min",
-                    "Peu importe",
-                ],
-                value="Moins de 30 min",
-                label="⏱️ Temps disponible",
-                elem_classes=["sf-preferences"],
-            )
-
-        preferences_input = gr.Textbox(
-            label="Une envie particulière ?",
-            placeholder=(
-                "Ex : végétarien, léger, épicé, repas du soir..."
-            ),
-            lines=2,
-            elem_classes=["sf-preferences"],
-        )
-
-        recipes_button = gr.Button(
-            "Trouver mes recettes →",
+        continue_button = gr.Button(
+            "Tout est bon, continuer →",
             variant="primary",
             elem_classes=["sf-primary-btn"],
         )
 
         # =========================
+        # PREFERENCES
+        # Cachées au démarrage
+        # =========================
+        with gr.Column(visible=False) as preferences_section:
+
+            gr.HTML(
+                """
+                <div class="sf-divider sf-section-title">
+                    <div class="sf-eyebrow">MAKE IT YOURS</div>
+                    <h2>Comment veux-tu manger aujourd'hui ?</h2>
+                    <p>
+                        Donne-moi quelques préférences et je m'occupe du reste.
+                    </p>
+                </div>
+                """
+            )
+
+            with gr.Row():
+
+                servings_input = gr.Radio(
+                    choices=["1", "2", "3", "4+"],
+                    value="2",
+                    label="👥 Pour combien de personnes ?",
+                    elem_classes=["sf-preferences"],
+                )
+
+                time_input = gr.Radio(
+                    choices=[
+                        "⚡ Moins de 15 min",
+                        "⏱️ Moins de 30 min",
+                        "🍳 Peu importe",
+                    ],
+                    value="⏱️ Moins de 30 min",
+                    label="Temps disponible",
+                    elem_classes=["sf-preferences"],
+                )
+
+            preferences_input = gr.Textbox(
+                label="Une envie particulière ?",
+                placeholder="Healthy, végétarien, épicé, comfort food...",
+                lines=2,
+                elem_classes=["sf-preferences"],
+            )
+
+            recipes_button = gr.Button(
+                "✦ Trouver mes recettes",
+                variant="primary",
+                elem_classes=["sf-primary-btn"],
+            )
+
+        # =========================
         # STEP 3 — RECIPES
+        # Cachées au démarrage
         # =========================
-        gr.HTML(
-            """
-            <div class="sf-divider sf-section-title">
-                <h2>03 — Tes recettes</h2>
-                <p>
-                    Des idées adaptées aux ingrédients
-                    que tu viens de valider.
-                </p>
-            </div>
-            """
-        )
+        with gr.Column(visible=False) as recipes_section:
 
-        recipe_output = gr.Markdown(
-            """
-### Tes recettes apparaîtront ici ✨
+            gr.HTML(
+                """
+                <div class="sf-divider sf-section-title">
+                    <div class="sf-eyebrow">SMART MATCHES</div>
+                    <h2>03 — Voilà ce qu'on peut cuisiner ✦</h2>
+                    <p>
+                        Des recettes pensées à partir de ce que
+                        tu as réellement chez toi.
+                    </p>
+                </div>
+                """
+            )
 
-Ajoute une photo, vérifie tes ingrédients puis lance la génération.
-            """,
-            elem_classes=["sf-recipes"],
-        )
+            recipe_output = gr.Markdown(
+                """
+### Tes recettes arrivent ici
 
-        # =========================
+Choisis tes préférences puis lance la génération.
+                """,
+                elem_classes=["sf-recipes"],
+            )
+                # =========================
         # INVENTORY
         # =========================
         gr.HTML(
             """
             <div class="sf-divider sf-section-title">
-                <h2>Mon inventaire</h2>
+                <div class="sf-eyebrow">YOUR KITCHEN</div>
+                <h2>Garde un œil sur ton stock.</h2>
                 <p>
-                    Enregistre les ingrédients confirmés pour
-                    retrouver ton stock lors de ta prochaine visite.
+                    Ton inventaire reste disponible sans encombrer
+                    ton parcours de génération de recettes.
                 </p>
             </div>
             """
         )
 
-        confirm_button = gr.Button(
-            "＋ Ajouter ces ingrédients à mon inventaire",
-            elem_classes=["sf-secondary-btn"],
-        )
+        with gr.Accordion(
+            " Ouvrir mon inventaire",
+            open=False,
+        ):
+            gr.Markdown(
+                """
+Les ingrédients que tu confirmes sont sauvegardés ici.
+Ajoute les aliments détectés quand tu souhaites les conserver.
+                """
+            )
 
-        inventory_status = gr.Markdown()
+            confirm_button = gr.Button(
+                "＋ Ajouter les ingrédients détectés",
+                elem_classes=["sf-secondary-btn"],
+            )
 
-        inventory_output = gr.Dataframe(
-            headers=[
-                "Aliment",
-                "Quantité",
-                "Unité",
-                "Maturité",
-                "Confiance",
-                "Confirmé",
-            ],
-            label="Inventaire enregistré",
-            type="array",
-            interactive=False,
-            wrap=True,
-            elem_classes=["sf-table"],
-        )
+            inventory_status = gr.Markdown()
+
+            inventory_output = gr.Dataframe(
+                headers=[
+                    "Aliment",
+                    "Quantité",
+                    "Unité",
+                    "Maturité",
+                    "Confiance",
+                    "Confirmé",
+                ],
+                label="Inventaire enregistré",
+                type="array",
+                interactive=False,
+                wrap=True,
+                elem_classes=["sf-table"],
+            )
 
         gr.HTML(
             """
@@ -756,7 +1246,11 @@ Ajoute une photo, vérifie tes ingrédients puis lance la génération.
                 ingredients_status,
             ],
         )
-
+        continue_button.click(
+            fn=reveal_preferences,
+            outputs=[preferences_section],
+        )
+        
         # Pour l'instant on conserve exactement le callback backend
         # existant. Les contrôles portions/temps seront connectés
         # à l'étape suivante.
