@@ -182,15 +182,27 @@ async def show_ingredients(
 async def propose_recipes(
     ingredient_rows: list[list[object]] | None,
     user_preferences: str | None,
+    servings: str | None = None,
+    time_choice: str | None = None,
 ) -> str:
     ingredients = _rows_to_ingredients(ingredient_rows)
     if not ingredients:
         return "Affichez d'abord les ingrédients de la photo pour obtenir des recettes."
 
+    # Construire la chaîne de préférences complète
+    pref_parts = []
+    if servings and servings.strip():
+        pref_parts.append(f"Pour {servings.strip()} personne(s).")
+    if time_choice and time_choice.strip():
+        pref_parts.append(f"Temps de préparation : {time_choice.strip()}.")
+    if user_preferences and user_preferences.strip():
+        pref_parts.append(user_preferences.strip())
+    full_preferences = " ".join(pref_parts)
+
     try:
         result = await recipes_from_ingredients(
             ingredients,
-            preferences=user_preferences or "",
+            preferences=full_preferences,
         )
     except (OllamaError, RecipeInputError, RecipeRepositoryError) as error:
         return _error_message(
@@ -270,10 +282,21 @@ def build_demo() -> gr.Blocks:
                 type="filepath",
                 sources=["upload", "clipboard"],
             )
-            preferences_input = gr.Textbox(
-                label="Préférences (facultatif)",
-                placeholder="Exemple : végétarien, rapide, pour 2 personnes",
-            )
+            with gr.Column():
+                servings_input = gr.Radio(
+                    choices=["1", "2", "3", "4+"],
+                    value="2",
+                    label="Pour combien de personnes ?",
+                )
+                time_input = gr.Radio(
+                    choices=["Moins de 15 min", "Moins de 30 min", "Peu importe"],
+                    value="Peu importe",
+                    label="Temps disponible",
+                )
+                preferences_input = gr.Textbox(
+                    label="Préférences (facultatif)",
+                    placeholder="Exemple : végétarien, épicé, comfort food",
+                )
 
         ingredients_button = gr.Button("Afficher les ingrédients")
         ingredients_status = gr.Markdown()
@@ -315,7 +338,7 @@ def build_demo() -> gr.Blocks:
         )
         recipes_button.click(
             fn=propose_recipes,
-            inputs=[ingredients_output, preferences_input],
+            inputs=[ingredients_output, preferences_input, servings_input, time_input],
             outputs=[recipe_output],
         )
         confirm_button.click(
