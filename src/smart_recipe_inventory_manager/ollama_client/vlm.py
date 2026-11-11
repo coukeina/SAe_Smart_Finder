@@ -32,9 +32,7 @@ class OllamaVLM(BaseModelEndpoint):
         response = await self._post("/api/generate", payload)
         text = response.get("response")
         if not isinstance(text, str):
-            raise OllamaResponseError(
-                "ollama generate response is missing 'response'"
-            )
+            raise OllamaResponseError("ollama generate response is missing 'response'")
         return text
 
     async def chat(
@@ -62,17 +60,17 @@ class OllamaVLM(BaseModelEndpoint):
         prompt: str,
         schema: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
-        image_base64 = base64.b64encode(
-            Path(image_path).read_bytes()
-        ).decode("utf-8")
+        image_base64 = base64.b64encode(Path(image_path).read_bytes()).decode("utf-8")
 
         for attempt in range(2):
             response = await self.chat(
-                [{
-                    "role": "user",
-                    "content": prompt,
-                    "images": [image_base64],
-                }],
+                [
+                    {
+                        "role": "user",
+                        "content": prompt,
+                        "images": [image_base64],
+                    }
+                ],
                 format=schema or "json",
                 options={"temperature": 0},
             )
