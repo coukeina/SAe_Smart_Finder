@@ -144,6 +144,7 @@ async def show_ingredients(
 
     try:
         analysis = await analyze_photo(image_path)
+
     except OSError:
         return [], "La photo n'a pas pu être lue. Choisissez un autre fichier."
     except (OllamaError, RecipeInputError) as error:
@@ -780,10 +781,12 @@ body {
 
 .sf-status {
     margin: 15px 5px 0;
-
+    padding: 18px 22px;
+    min-height: 90px;
+    width: 100%;
     color: #c5ceda;
+    overflow: visible !important;
 }
-
 
 /* ---------- INVENTORY ---------- */
 
@@ -883,6 +886,7 @@ body {
     .sf-step-line {
         margin: 0 9px;
     }
+    
 
     .sf-section-title h2 {
         font-size: 26px !important;
