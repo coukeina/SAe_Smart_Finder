@@ -102,7 +102,7 @@ Suggestions du référentiel de recettes (à adapter aux ingrédients disponible
 Préférences de l'utilisateur :
 {preferences or "Aucune préférence particulière"}
 
-Propose {count} recettes différentes, réalisables STRICTEMENT avec les ingrédients disponibles.
+Propose une recette réalisable STRICTEMENT avec les ingrédients disponibles.
 
 RÈGLE ABSOLUE :
 Utilise UNIQUEMENT les ingrédients présents dans la liste "Ingrédients disponibles".
