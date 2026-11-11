@@ -182,15 +182,27 @@ async def show_ingredients(
 async def propose_recipes(
     ingredient_rows: list[list[object]] | None,
     user_preferences: str | None,
+    servings: str | None = None,
+    time_choice: str | None = None,
 ) -> str:
     ingredients = _rows_to_ingredients(ingredient_rows)
     if not ingredients:
         return "Affichez d'abord les ingrédients de la photo pour obtenir des recettes."
 
+    # Construire la chaîne de préférences complète
+    pref_parts = []
+    if servings and servings.strip():
+        pref_parts.append(f"Pour {servings.strip()} personne(s).")
+    if time_choice and time_choice.strip():
+        pref_parts.append(f"Temps de préparation : {time_choice.strip()}.")
+    if user_preferences and user_preferences.strip():
+        pref_parts.append(user_preferences.strip())
+    full_preferences = " ".join(pref_parts)
+
     try:
         result = await recipes_from_ingredients(
             ingredients,
-            preferences=user_preferences or "",
+            preferences=full_preferences,
         )
     except (OllamaError, RecipeInputError, RecipeRepositoryError) as error:
         return _error_message(
@@ -886,45 +898,23 @@ body {
 """
 def reveal_preferences():
     """Reveal recipe preferences after ingredient validation."""
-    return (
-        gr.update(visible=True),
-        gr.update(visible=True),
-    )
-
-
-def reveal_recipes():
-    """Reveal the recipe result section."""
     return gr.update(visible=True)
 
 def build_demo() -> gr.Blocks:
-    async def propose_recipes_with_preferences(
-        ingredient_rows,
-        servings,
-        cooking_time,
-        preferences,
-):
-        """Generate recipes using the selected user preferences."""
-        combined_preferences = (
-            f"Nombre de personnes : {servings}. "
-            f"Temps disponible : {cooking_time}. "
-            f"Préférences supplémentaires : {preferences or 'aucune'}."
-        )
-
-        return await propose_recipes(
-            ingredient_rows,
-            combined_preferences,
-        )
     """Build the SmartFinder user interface."""
 
     with gr.Blocks(
         title="SmartFinder",
         css=CUSTOM_CSS,
         theme=gr.themes.Base(
-        primary_hue="lime",
-        neutral_hue="slate",
-        radius_size="lg",
-        font=[gr.themes.GoogleFont("Inter"),"Arial","sans-serif",
-               ],
+            primary_hue="lime",
+            neutral_hue="slate",
+            radius_size="lg",
+            font=[
+                gr.themes.GoogleFont("Inter"),
+                "Arial",
+                "sans-serif",
+            ],
         ),
     ) as demo:
 
@@ -988,19 +978,17 @@ def build_demo() -> gr.Blocks:
         )
 
         with gr.Group(elem_classes=["sf-card"]), gr.Row(equal_height=True):
+            image_input = gr.Image(
+                label="Photo de tes aliments",
+                type="filepath",
+                sources=["upload", "clipboard"],
+                height=330,
+                elem_classes=["sf-image"],
+            )
 
-                image_input = gr.Image(
-                    label="Photo de tes aliments",
-                    type="filepath",
-                    sources=["upload", "clipboard"],
-                    height=330,
-                    elem_classes=["sf-image"],
-                )
-
-                with gr.Column():
-
-                    gr.Markdown(
-                        """
+        with gr.Column():
+                gr.Markdown(
+                    """
 ### Une bonne photo fait toute la différence
 
 Pour obtenir une détection plus précise :
@@ -1011,14 +999,14 @@ Pour obtenir une détection plus précise :
 - tu pourras **corriger les résultats** ensuite
 
 L'IA ne doit utiliser que les aliments réellement détectés.
-                        """
-                    )
+                    """
+                )
 
-                    ingredients_button = gr.Button(
-                        " Analyser ma photo",
-                        variant="primary",
-                        elem_classes=["sf-primary-btn"],
-                    )
+                ingredients_button = gr.Button(
+                    "Analyser ma photo",
+                    variant="primary",
+                    elem_classes=["sf-primary-btn"],
+                )
 
         ingredients_status = gr.Markdown(
             elem_classes=["sf-status"]
@@ -1274,8 +1262,11 @@ Ajoute les aliments détectés quand tu souhaites les conserver.
             inputs=[
                 ingredients_output,
                 preferences_input,
+                servings_input,
+                time_input,
             ],
             outputs=[recipe_output],
+            
         )
 
         confirm_button.click(

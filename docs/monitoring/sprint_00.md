@@ -26,6 +26,8 @@ pas une nomenclature de versions imposée par le sujet.
   PostgreSQL.
 - [x] Tests unitaires des repositories, de l'indexation, des métriques et des
   callbacks Gradio.
+- [x] Préférences utilisateur (nombre de personnes, temps, texte libre)
+  transmises au LLM via l'interface.
 - [ ] Vérifier le parcours complet sur une base PostgreSQL alimentée et un
   serveur Ollama avec les trois modèles requis.
 
@@ -40,15 +42,20 @@ projet sans hypothèses cachées.
 - [x] Validation locale : 46 tests, Ruff, compilation Python et configuration
   Docker Compose réussis.
 - [x] CI verte sur la branche `feat/vector-recipe-search` (`b75d44a`).
-- [ ] Construire et lancer l'image Docker avec PostgreSQL et Ollama ; le moteur
-  Docker local n'était pas disponible lors de la validation.
+- [x] User stories rédigées et liées à l'implémentation (`docs/user_stories.md`).
+- [x] Documentation d'architecture avec flux et choix techniques
+  (`docs/architecture.md`).
+- [x] CONTRIBUTING.md et template de PR ajoutés.
+- [x] `.venv` retiré du suivi Git.
+- [ ] Construire et lancer l'image Docker avec PostgreSQL et Ollama sur le
+  matériel IUT.
 - [ ] Faire une démonstration sur des photos réelles et consigner les limites
-  de détection et de qualité des recettes.
+  de détection et de qualité des recettes dans `docs/demo.md`.
 
 ## Critères de clôture
 
-La livraison est clôturée lorsque les cases restantes des V2/V3 sont validées,
+La livraison est clôturée lorsque les cases restantes de V2/V3 sont validées,
 que la CI est verte et qu'un essai réel du parcours photo → ingrédients →
-recettes est documenté. Les tests mockés vérifient les contrats applicatifs,
-mais ne mesurent ni la qualité des modèles ni les performances sur le matériel
-IUT.
+recettes est documenté avec captures d'écran. Les tests mockés vérifient les
+contrats applicatifs, mais ne mesurent ni la qualité des modèles ni les
+performances sur le matériel IUT.
