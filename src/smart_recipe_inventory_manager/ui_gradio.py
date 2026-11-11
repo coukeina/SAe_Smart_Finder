@@ -897,6 +897,23 @@ def reveal_recipes():
     return gr.update(visible=True)
 
 def build_demo() -> gr.Blocks:
+    async def propose_recipes_with_preferences(
+        ingredient_rows,
+        servings,
+        cooking_time,
+        preferences,
+):
+        """Generate recipes using the selected user preferences."""
+        combined_preferences = (
+            f"Nombre de personnes : {servings}. "
+            f"Temps disponible : {cooking_time}. "
+            f"Préférences supplémentaires : {preferences or 'aucune'}."
+        )
+
+        return await propose_recipes(
+            ingredient_rows,
+            combined_preferences,
+        )
     """Build the SmartFinder user interface."""
 
     with gr.Blocks(
@@ -970,9 +987,7 @@ def build_demo() -> gr.Blocks:
             """
         )
 
-        with gr.Group(elem_classes=["sf-card"]):
-
-            with gr.Row(equal_height=True):
+        with gr.Group(elem_classes=["sf-card"]), gr.Row(equal_height=True):
 
                 image_input = gr.Image(
                     label="Photo de tes aliments",
@@ -1153,7 +1168,7 @@ L'IA ne doit utiliser que les aliments réellement détectés.
         # STEP 3 — RECIPES
         # Cachées au démarrage
         # =========================
-        with gr.Column(visible=False) as recipes_section:
+        with gr.Column(visible=False):
 
             gr.HTML(
                 """
@@ -1255,13 +1270,15 @@ Ajoute les aliments détectés quand tu souhaites les conserver.
         # existant. Les contrôles portions/temps seront connectés
         # à l'étape suivante.
         recipes_button.click(
-            fn=propose_recipes,
-            inputs=[
-                ingredients_output,
-                preferences_input,
-            ],
-            outputs=[recipe_output],
-        )
+    fn=propose_recipes_with_preferences,
+    inputs=[
+        ingredients_output,
+        servings_input,
+        time_input,
+        preferences_input,
+    ],
+    outputs=[recipe_output],
+)
 
         confirm_button.click(
             fn=confirm_inventory,
