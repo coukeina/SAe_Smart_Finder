@@ -68,14 +68,15 @@ class OllamaVLM(BaseModelEndpoint):
 
         for attempt in range(2):
             response = await self.chat(
-                [{
-                    "role": "user",
-                    "content": prompt,
-                    "images": [image_base64],
-                }],
-                format=schema or "json",
-                options={"temperature": 0},
-            )
+    [{
+        "role": "user",
+        "content": prompt,
+        "images": [image_base64],
+    }],
+    max_tokens=200,
+    temperature=0,
+    format=schema or "json",
+)
             message = response.get("message")
             content = message.get("content") if isinstance(message, dict) else None
             if not isinstance(content, str):

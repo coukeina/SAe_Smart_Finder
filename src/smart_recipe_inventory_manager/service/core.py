@@ -102,9 +102,19 @@ Suggestions du référentiel de recettes (à adapter aux ingrédients disponible
 Préférences de l'utilisateur :
 {preferences or "Aucune préférence particulière"}
 
-Propose une recette réalisable avec les ingrédients disponibles.
-N'ajoute aucun ingrédient qui ne figure pas dans la liste détectée.
-N'inclus pas d'ingrédients de base (sel, poivre, huile, eau) s'ils ne sont pas détectés.
+Propose {count} recettes différentes, réalisables STRICTEMENT avec les ingrédients disponibles.
+
+RÈGLE ABSOLUE :
+Utilise UNIQUEMENT les ingrédients présents dans la liste "Ingrédients disponibles".
+N'ajoute AUCUN autre ingrédient.
+N'ajoute pas de sel, poivre, huile, eau, épices, assaisonnement ou autre ingrédient
+s'ils ne figurent pas explicitement dans la liste détectée.
+Le champ "ingredients" du JSON doit contenir uniquement des noms présents dans
+"Ingrédients disponibles".
+
+Si une suggestion du référentiel contient d'autres ingrédients, ignore ces ingrédients
+et adapte la recette uniquement avec les ingrédients disponibles.
+
 Réponds uniquement avec ce JSON :
 {{
   "title": "nom de la recette",
