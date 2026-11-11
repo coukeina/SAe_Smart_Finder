@@ -80,7 +80,9 @@ def _format_metrics(
                 formatted = str(int(value))
             else:
                 formatted = f"{value:.2f}"
-            unit = "" if key in {"generated_tokens", "recipe_cosine_similarity"} else " ms"
+            unit = (
+                "" if key in {"generated_tokens", "recipe_cosine_similarity"} else " ms"
+            )
             if key == "tokens_per_second":
                 unit = " tokens/s"
             lines.append(f"- **{label} :** {formatted}{unit}")
@@ -128,11 +130,15 @@ def _rows_to_ingredients(rows: list[list[object]] | None) -> list[dict[str, obje
         if not isinstance(name, str) or not name.strip():
             continue
         maturity = row[2] if len(row) > 2 else None
-        ingredients.append({
-            "name": name.strip(),
-            "quantity": _clean_number(row[1]) if len(row) > 1 else None,
-            "maturity": maturity if isinstance(maturity, str) and maturity.strip() else None,
-        })
+        ingredients.append(
+            {
+                "name": name.strip(),
+                "quantity": _clean_number(row[1]) if len(row) > 1 else None,
+                "maturity": maturity
+                if isinstance(maturity, str) and maturity.strip()
+                else None,
+            }
+        )
     return ingredients
 
 

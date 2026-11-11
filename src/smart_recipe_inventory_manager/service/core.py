@@ -21,8 +21,7 @@ class RecipeInputError(ValueError):
 def _normalize_ingredient_name(name: str) -> str:
     decomposed = unicodedata.normalize("NFKD", name.casefold())
     without_accents = "".join(
-        character for character in decomposed
-        if not unicodedata.combining(character)
+        character for character in decomposed if not unicodedata.combining(character)
     )
     without_ligatures = without_accents.replace("œ", "oe").replace("æ", "ae")
     return " ".join(re.findall(r"[a-z0-9]+", without_ligatures))
@@ -129,8 +128,7 @@ Réponds uniquement avec ce JSON :
         ) from exc
 
     detected_names = {
-        _normalize_ingredient_name(ingredient["name"])
-        for ingredient in ingredients
+        _normalize_ingredient_name(ingredient["name"]) for ingredient in ingredients
     }
     unknown_ingredients = [
         ingredient
@@ -201,8 +199,7 @@ Réponds uniquement avec ce JSON :
         ) from exc
 
     detected_names = {
-        _normalize_ingredient_name(ingredient["name"])
-        for ingredient in ingredients
+        _normalize_ingredient_name(ingredient["name"]) for ingredient in ingredients
     }
     grounded = [
         recipe.model_dump(mode="json")
@@ -278,15 +275,9 @@ async def recipes_from_ingredients(
     return {
         "recipes": generated_recipes,
         "metrics": {
-            "generation_latency_ms": getattr(
-                generation_metrics, "latency_ms", None
-            ),
-            "generated_tokens": getattr(
-                generation_metrics, "generated_tokens", None
-            ),
-            "tokens_per_second": getattr(
-                generation_metrics, "tokens_per_second", None
-            ),
+            "generation_latency_ms": getattr(generation_metrics, "latency_ms", None),
+            "generated_tokens": getattr(generation_metrics, "generated_tokens", None),
+            "tokens_per_second": getattr(generation_metrics, "tokens_per_second", None),
             "recipe_cosine_similarity": (
                 candidates[0]["cosine_similarity"] if candidates else None
             ),

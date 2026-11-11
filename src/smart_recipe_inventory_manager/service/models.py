@@ -7,29 +7,29 @@ NonNegativeQuantity = Annotated[float, Field(ge=0, allow_inf_nan=False)]
 
 
 class DetectedIngredient(BaseModel):
-	model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
-	name: NonEmptyString
-	quantity: NonNegativeQuantity | None = None
-	maturity: str | None = None
+    name: NonEmptyString
+    quantity: NonNegativeQuantity | None = None
+    maturity: str | None = None
 
 
 class IngredientDetection(BaseModel):
-	model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid")
 
-	ingredients: list[DetectedIngredient]
+    ingredients: list[DetectedIngredient]
 
 
 class GeneratedRecipe(BaseModel):
-	model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
-	title: NonEmptyString
-	ingredients: list[NonEmptyString] = Field(min_length=1)
-	steps: list[NonEmptyString] = Field(min_length=1)
-	cooking_time: NonEmptyString
+    title: NonEmptyString
+    ingredients: list[NonEmptyString] = Field(min_length=1)
+    steps: list[NonEmptyString] = Field(min_length=1)
+    cooking_time: NonEmptyString
 
 
 class GeneratedRecipes(BaseModel):
-	model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid")
 
-	recipes: list[GeneratedRecipe] = Field(min_length=1)
+    recipes: list[GeneratedRecipe] = Field(min_length=1)

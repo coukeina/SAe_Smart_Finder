@@ -38,6 +38,7 @@ def _is_context_limit_message(message: str) -> bool:
         )
     )
 
+
 class OllamaError(RuntimeError):
     """Base error raised by the local Ollama adapter."""
 
@@ -118,9 +119,8 @@ class BaseModelEndpoint(ABC):
 
                 self._log_request(path, started_at, error=f"http_{status_code}")
                 if (
-                    (status_code == 429 or status_code >= 500)
-                    and attempt < MAX_REQUEST_ATTEMPTS
-                ):
+                    status_code == 429 or status_code >= 500
+                ) and attempt < MAX_REQUEST_ATTEMPTS:
                     await asyncio.sleep(RETRY_DELAY_SECONDS * attempt)
                     continue
                 raise OllamaResponseError(
