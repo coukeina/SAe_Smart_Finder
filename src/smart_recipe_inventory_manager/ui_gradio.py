@@ -1270,15 +1270,13 @@ Ajoute les aliments détectés quand tu souhaites les conserver.
         # existant. Les contrôles portions/temps seront connectés
         # à l'étape suivante.
         recipes_button.click(
-    fn=propose_recipes_with_preferences,
-    inputs=[
-        ingredients_output,
-        servings_input,
-        time_input,
-        preferences_input,
-    ],
-    outputs=[recipe_output],
-)
+            fn=propose_recipes,
+            inputs=[
+                ingredients_output,
+                preferences_input,
+            ],
+            outputs=[recipe_output],
+        )
 
         confirm_button.click(
             fn=confirm_inventory,
