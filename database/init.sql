@@ -14,7 +14,9 @@ CREATE TABLE IF NOT EXISTS recipes (
 CREATE TABLE IF NOT EXISTS ingredients (
     id INT NOT NULL PRIMARY KEY DEFAULT nextval('ingredients_id_seq'),
     name TEXT NOT NULL,
-    normalized_name TEXT NOT NULL UNIQUE
+    normalized_name TEXT NOT NULL UNIQUE,
+    quantity INT NOT NULL,
+    maturity VARCHAR(255) NOT NULL
 );
 
 ALTER TABLE ingredients
