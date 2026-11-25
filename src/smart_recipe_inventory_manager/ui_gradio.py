@@ -22,6 +22,13 @@ from .service.inventory import (
 from .storage.inventory_repository import InventoryRepositoryError
 from .storage.recipe_repository import RecipeRepositoryError
 
+import asyncio
+
+from .ollama_client.ollama_wrapper_iut import (
+    OllamaConnectionError,
+    OllamaResponseError,
+    OllamaWrapper,
+)
 
 def save_json(name: str, payload: dict[str, object], stamp: str) -> Path:
     output_dir = Path(settings.output_dir)
@@ -254,6 +261,21 @@ def refresh_inventory() -> tuple[list[list[object]], str]:
         return [], str(error)
     return rows, f"{len(rows)} ingrédient(s) dans l'inventaire."
 
+async def check_ollama_from_ui() -> str:
+    def check() -> str:
+        client = OllamaWrapper(
+            base_url=settings.ollama_host,
+            timeout_s=10.0,
+        )
+        version = client.get_version()
+        models = client.list_models()
+        names = ", ".join(model.name for model in models) or "aucun modèle"
+        return f"Connexion OK — Ollama {version}\n\nModèles : {names}"
+
+    try:
+        return await asyncio.to_thread(check)
+    except (OllamaConnectionError, OllamaResponseError) as error:
+        return f"Échec du test Ollama : {error}"
 
 def build_demo() -> gr.Blocks:
     """Build the recipe suggestion interface."""
